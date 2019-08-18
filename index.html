@@ -9,117 +9,22 @@
         <div id="card">
             <table id='layout'>
                 <tr>
-                    <td id='clock' style='color: #800000;'>&#xA555;</td>
-                    <td id='loader'>Loader</td>
+                    <td colspan='2' id='banner'>CPU Simulator</td>
+                </tr>
+                <tr>
+                    <td id='clock' style='color: #800000;'>&#x2600;</td>
+                    <td id='loader'>Current Operation</td>
                 </tr>
                 <tr>
                     <td colspan='2' id='registers'>Registers</td>
                 </tr>
                 <tr>
                     <td colspan='2' id='memory'>
-                        <textarea id='mem'></textarea>
+                        <textarea id='mem' spellcheck="false"></textarea>
                     </td>
                 </tr>
             </table>
         </div>
-        <script type="text/javascript">
-            self.mem.value = "LDA $5\nADC #1\nSDA $5\nJMP $0\nNOP\n0";
-            self.cpuData = {
-                clockState:  0,
-                memoryArray: [],
-                loaderIndex: 0,
-                interuptStack: [0],
-                registers: {
-                    A: 0,
-                },
-            };
-            self.readMemory = () => {
-                self.cpuData.memoryArray.length = 0;
-                var lines = self.mem.value.replace(/\r\n/g,"\n").split("\n");
-                lines.forEach(line => {
-                    if(line.trim() != ""){ self.cpuData.memoryArray.push(line); }
-                });                
-            };
-            self.writeMemory = () => {
-                self.mem.value = self.cpuData.memoryArray.join("\n");
-            };
-            self.loaderRun = () => {
-                var operandTypes = {
-                    NULL:      0,
-                    IMMEDIATE: 1,
-                    ABSOLUTE:  2,
-                };
-
-                self.readMemory();
-
-                var curInstruction  = self.cpuData.memoryArray[self.cpuData.loaderIndex];
-                var curInstrParts   = curInstruction.split(' ');
-                var operation       = curInstrParts[0];
-                var formattedValue  = curInstrParts[1];
-                var operandValue    = 0;
-                var operandLocation = 0;
-                var operandType     = 0;
-                if(formattedValue.startsWith('#')){
-                    operandType  = operandTypes.IMMEDIATE;
-                    operandValue = parseInt(formattedValue.substr(1)); 
-                }
-                if(formattedValue.startsWith('$')){
-                    operandType     = operandTypes.ABSOLUTE;
-                    operandValue    = self.cpuData.memoryArray[parseInt(formattedValue.substr(1))];
-                    operandLocation = parseInt(formattedValue.substr(1));
-                }
-
-                self.loader.innerHTML = `Loader: ${curInstruction}`;
-                console.log(self.cpuData);
-
-                switch (operation.toUpperCase()) {
-                    case 'ADC':
-                        cpuData.registers.A = parseInt(cpuData.registers.A) + parseInt(operandValue);
-                        break;
-
-                    case 'LDA':
-                        if(operandType == operandTypes.IMMEDIATE) {
-                            cpuData.registers.A =  parseInt(operandValue);
-                        }
-                        if(operandType == operandTypes.ABSOLUTE) {
-                            cpuData.registers.A = parseInt(operandLocation) // doubt
-                        }
-                        break;
-
-                    case 'JMP':
-                        self.cpuData.loaderIndex = parseInt(operandLocation);
-                        break;                
-
-                    case 'NOP':
-                        // do nothing
-                        break;
-
-                    case 'SDA':
-                        self.cpuData.memoryArray[operandLocation] = `${self.registers.A}`;
-                        break;
-
-                    default:
-                        break;
-                }
-            
-                self.writeMemory();
-                
-                self.cpuData.loaderIndex++;
-                if(self.cpuData.loaderIndex >= self.cpuData.memoryArray.length){ self.cpuData.loaderIndex = 0; }
-            };
-            self.clockTick = () => {
-                if(self.cpuData.clockState == 1){
-                    self.clock.style.color = '#FF0000';
-                    self.loaderRun();
-                    self.cpuData.clockState = 0;
-                }
-                else{
-                    self.clock.style.color = '#800000';
-                    self.cpuData.clockState = 1;
-                }
-            };
-            self.intervalHandle = self.setInterval(self.clockTick, 1000);
-            
-        </script>
+        <script type="text/javascript" src="assets/js/cpu.js"></script>
     </body>
 </html>
