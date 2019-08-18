@@ -1,6 +1,8 @@
 # Javascript CPU simulator
 This is a javascript web page that simulates a cpu.
 
+Try it out [here](http://firoved.com/github/javascript-cpu-simulator/)
+
 The opcodes used are based on the 6502 opcodes.
 
 Currentyly the following opcodes work:
