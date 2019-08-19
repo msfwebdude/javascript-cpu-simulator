@@ -5,7 +5,7 @@ Try it out [here](http://firoved.com/github/javascript-cpu-simulator/)
 
 The opcodes used are based on the 6502 opcodes.
 
-Currentyly the following opcodes work:
+Currently the following opcodes work:
 * ADC
 * DEX
 * DEY
