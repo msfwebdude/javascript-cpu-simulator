@@ -7,19 +7,22 @@
     <body>
         <p><br /></p>
         <div id="card">
-            <table id='layout'>
+            <table id='upperTable'>
                 <tr>
-                    <td colspan='2' id='banner'>CPU Simulator</td>
+                    <td colspan='8' id='banner'>CPU Simulator</td>
                 </tr>
                 <tr>
                     <td id='clock' style='color: #800000;'>&#x2600;</td>
-                    <td id='loader'>Current Operation</td>
+                    <td id='loader' colspan='7'>Current Operation</td>
                 </tr>
                 <tr>
-                    <td colspan='2' id='registers'>Registers</td>
+                    <td colspan='8' id='registers'>Registers</td>
                 </tr>
                 <tr>
-                    <td colspan='2' id='memory'>
+                    <td id='assembly' colspan='4'>Assembly Program<br />
+                        <textarea id='prg' spellcheck="false"></textarea>
+                    </td>
+                    <td id='memory' colspan='4'>Memory<br />
                         <textarea id='mem' spellcheck="false"></textarea>
                     </td>
                 </tr>

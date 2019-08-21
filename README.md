@@ -28,3 +28,12 @@ Currently the following opcodes work:
 * handle interupts
 * add all flags
 * add more opcodes
+
+## Assembly syntax
+Whitespace before or after is generally ignored 
+
+* comments begin with a semicolon (;)
+* labels end with a semicolon (:)
+* immediate values begin with hash dollar sign (#$)
+* memory locations begin with dollar sign ($)
+
