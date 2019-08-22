@@ -5,6 +5,7 @@
     {
         height: 100%;
         background-image: linear-gradient(#FFFFFF, #808080);
+        overflow: hidden;
     }
     table
     {
