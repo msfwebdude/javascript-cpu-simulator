@@ -1,6 +1,6 @@
 // script source for index.html
 
-self.prg.value = "start:\n\tLDA #$00\n\tSTA $0018\n\tADC #$1E\naddLoop:\n\tLDA $0018\n\tTAX\n\tINX\n\tTXA\n\tSTA $0018\n\tJMP addLoop\n\tNOP";
+self.prg.value = "start:\n\tLDA #$00\n\tSTA $0020\n\tADC #$1E\n\tLDA #$04\n\tASL A\n\tSTA $0021\naddLoop:\n\tLDA $0020\n\tTAX\n\tINX\n\tTXA\n\tSTA $0020\n\tJMP addLoop\n\tNOP";
 self.cpuData = {
     clockState: 0,
     memoryArray: [],
@@ -93,6 +93,24 @@ self.assembleCode = () => {
 
                                 case operandTypes.ABSOLUTE:
                                     self.cpuData.memoryArray.push(0x6D);
+                                    self.cpuData.memoryArray.push(operandValue[0]);
+                                    self.cpuData.memoryArray.push(operandValue[1]);
+                                    self.cpuData.assembler.privatePointer += 3;
+                                    break;
+                            }
+                            break;
+                        case 'ASL':
+                            switch (operandType) {
+                                case operandTypes.NULL:
+                                    // look for A
+                                    if (operand.toUpperCase == 'A') {
+                                        self.cpuData.memoryArray.push(0x0A);
+                                        self.cpuData.assembler.privatePointer++;
+                                    }
+                                    break;
+
+                                case operandTypes.ABSOLUTE:
+                                    self.cpuData.memoryArray.push(0x0E);
                                     self.cpuData.memoryArray.push(operandValue[0]);
                                     self.cpuData.memoryArray.push(operandValue[1]);
                                     self.cpuData.assembler.privatePointer += 3;
@@ -309,6 +327,19 @@ self.loaderRun = () => {
             self.cpuData.programCounter += 3;
             break;
 
+        case 0x0A:
+            // ASL A
+            self.loader.innerHTML = `${currentPfx} ASL A`;
+            cpuData.registers.A = cpuData.registers.A << 1;
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x0E:
+            // ASL absolute
+            self.loader.innerHTML = `${currentPfx} ASL ${oneAndTwo}`;
+            self.cpuData.memoryArray[oneAndTwo] = self.cpuData.memoryArray[oneAndTwo] << 1;
+            self.cpuData.programCounter += 3;
+            break;
 
         case 0xCA:
             // DEX
@@ -449,6 +480,7 @@ self.loaderRun = () => {
 
     if (self.cpuData.programCounter >= self.cpuData.memoryArray.length) { self.cpuData.programCounter = 0; }
 };
+
 self.clockTick = () => {
     if (self.cpuData.clockState == 1) {
         self.clock.style.color = '#FF0000';
