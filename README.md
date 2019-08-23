@@ -7,6 +7,8 @@ The opcodes used are based on the 6502 opcodes.
 
 Currently the following opcodes work:
 * ADC
+* AND
+* ASL
 * DEX
 * DEY
 * INX
