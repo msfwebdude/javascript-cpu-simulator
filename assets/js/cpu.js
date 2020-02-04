@@ -1,30 +1,75 @@
 // script source for index.html
 
-self.prg.value = "start:\n\tLDA #$00\n\tSTA $0020\n\tADC #$1E\n\tLDA #$04\n\tASL A\n\tSTA $0021\naddLoop:\n\tLDA $0020\n\tTAX\n\tINX\n\tTXA\n\tSTA $0020\n\tJMP addLoop\n\tNOP";
+self.prg.value = `
+; sample program for 6502
+
+.chip 65C02
+
+.org $FFFE
+.word $0003
+    
+.org $0003
+
+start:
+    LDA #$00
+    STA $0040
+    ADC #$1E
+    LDA #$04
+    ASL A
+    STA $0021
+
+addLoop:
+    LDA $0040
+    TAX
+    INX
+    TXA
+    STA $0040
+    JMP addLoop
+    NOP
+
+.org $0040
+.byte $00
+`;
+
 self.cpuData = {
     clockState: 0,
     memoryArray: [],
     interuptStack: [0],
-    programCounter: 0,
+    cpuEnabled: false,
+    programCounter: 0xFFFE,
     registers: {
         A: 0,
         X: 0,
         Y: 0,
     },
     assembler: {
-        labelLocations: {},
+        labels: {
+            labelLocations: {},
+            futureLabels:   {},
+        },
         privatePointer: 0,
     }
 };
 
+self.clearAndInitializeMemory = (memorySize) => {
+    self.cpuData.memoryArray.length = 0;    
+
+    for (let i = 0; i < memorySize; i++) {
+        self.cpuData.memoryArray.push(0xff);
+    }
+}
+
 
 // cpu functions
 self.assembleCode = () => {
+    // halt cpu for assembly
+    self.cpuData.cpuEnabled = self.cpuEnabled.checked = false;
+
     // clear existing memory
-    self.cpuData.memoryArray.length = 0;
+    self.clearAndInitializeMemory(65536);
 
     // clear assembler label locations
-    self.cpuData.assembler.labelLocations = {};
+    self.cpuData.assembler.labels.labelLocations = {};
     self.cpuData.assembler.privatePointer = 0;
 
     // operand type 'constants'
@@ -34,244 +79,394 @@ self.assembleCode = () => {
         ABSOLUTE: 2,
     };
 
+    var nextMemoryIndex = 0;
+
     // iterate through program
     var lines = self.prg.value.replace(/\r\n/g, "\n").split("\n");
     lines.forEach(line => {
+        
         if (line.trim() != "") {
-            // check for comment
-            if (!line.trim().startsWith(';')) {
-                // check for label
-                if (line.trim().endsWith(':')) {
-                    var labelName = line.trim().replace(':', '');
-                    var labelLocation = ("0000" + self.cpuData.assembler.privatePointer).substr(-4, 4);
-
-                    self.cpuData.assembler.labelLocations[labelName] = [];
-                    self.cpuData.assembler.labelLocations[labelName].push(labelLocation.substr(2, 2));
-                    self.cpuData.assembler.labelLocations[labelName].push(labelLocation.substr(0, 2));
-                }
-                else {
-                    var lineParts = line.trim().split(' ');
-                    var operation = lineParts[0].toUpperCase();
-
-                    var operand = '';
-
-                    var operandType = 0;
-                    var operandValue = [];
-
-                    if (lineParts.length > 1) {
-                        operand = lineParts[1];
-
-                        var commentIndex = operand.indexOf(';')
-
-                        // strip end of line comment
-                        if (commentIndex > -1) { operand = operand.substr(0, commentIndex - 1); }
-
-
-                        if (operand.startsWith('#')) {
-                            operandType = operandTypes.IMMEDIATE;
-                            operandValue.push(parseInt("0x" + operand.substr(2)));
-                        }
-                        if (operand.startsWith('$')) {
-                            if (operand.length != 5) {
-                                alert(`syntax error ${line} absolute values are two bytes.`);
-                                return;
+            // check for compiler directive
+            if (line.trim().startsWith('.')){
+                var directiveParts = line.trim().split(' ');
+                var directiveCode  = directiveParts[0].trim().toUpperCase();
+                var directiveArgs  = line.trim().split(/ |,/ig);
+                switch (directiveCode) {
+                    case '.ORG':
+                        if (directiveParts.length > 1) {
+                            var orgAddress = directiveParts[1];  
+                            if (orgAddress.startsWith('$')) {
+                                nextMemoryIndex = parseInt("0x" + orgAddress.substr(1, 4))
                             }
-                            operandType = operandTypes.ABSOLUTE;
-                            operandValue.push(parseInt("0x" + operand.substr(3, 2)));
-                            operandValue.push(parseInt("0x" + operand.substr(1, 2)));
-                        }
-                    }
-
-                    switch (operation) {
-                        case 'ADC':
-                            switch (operandType) {
-                                case operandTypes.IMMEDIATE:
-                                    self.cpuData.memoryArray.push(0x69);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.assembler.privatePointer += 2;
-                                    break;
-
-                                case operandTypes.ABSOLUTE:
-                                    self.cpuData.memoryArray.push(0x6D);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.memoryArray.push(operandValue[1]);
-                                    self.cpuData.assembler.privatePointer += 3;
-                                    break;
-                            }
-                            break;
-                        case 'ASL':
-                            switch (operandType) {
-                                case operandTypes.NULL:
-                                    // look for A
-                                    if (operand.toUpperCase == 'A') {
-                                        self.cpuData.memoryArray.push(0x0A);
-                                        self.cpuData.assembler.privatePointer++;
-                                    }
-                                    break;
-
-                                case operandTypes.ABSOLUTE:
-                                    self.cpuData.memoryArray.push(0x0E);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.memoryArray.push(operandValue[1]);
-                                    self.cpuData.assembler.privatePointer += 3;
-                                    break;
-                            }
-                            break;
-
-                        case 'DEX':
-                            self.cpuData.memoryArray.push(0xCA);
-                            self.cpuData.assembler.privatePointer++;
-
-                        case 'DEY':
-                            self.cpuData.memoryArray.push(0x88);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        case 'INX':
-                            self.cpuData.memoryArray.push(0xE8);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        case 'INY':
-                            self.cpuData.memoryArray.push(0xC8);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        case 'JMP':
-                            switch (operandType) {
-                                case operandTypes.NULL:
-                                    // look for label
-                                    if (operand in self.cpuData.assembler.labelLocations) {
-                                        self.cpuData.memoryArray.push(0x4C);
-                                        self.cpuData.memoryArray.push(self.cpuData.assembler.labelLocations[operand][0]);
-                                        self.cpuData.memoryArray.push(self.cpuData.assembler.labelLocations[operand][1]);
-                                        self.cpuData.assembler.privatePointer += 3;
-                                    }
-                                    break;
-
-                                case operandTypes.ABSOLUTE:
-                                    self.cpuData.memoryArray.push(0x4C);
-                                    self.cpuData.memoryArray.push(operandValue);
-                                    self.cpuData.assembler.privatePointer += 2;
-                                    break;
-                            }
-
-                            break;
-
-                        case 'LDA':
-                            switch (operandType) {
-                                case operandTypes.IMMEDIATE:
-                                    self.cpuData.memoryArray.push(0xA9);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.assembler.privatePointer += 2;
-                                    break;
-
-                                case operandTypes.ABSOLUTE:
-                                    self.cpuData.memoryArray.push(0xAD);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.memoryArray.push(operandValue[1]);
-                                    self.cpuData.assembler.privatePointer += 3;
-                                    break;
-                            }
-                            break;
-
-                        case 'LDX':
-                            switch (operandType) {
-                                case operandTypes.IMMEDIATE:
-                                    self.cpuData.memoryArray.push(0xA2);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.assembler.privatePointer += 2;
-                                    break;
-
-                                case operandTypes.ABSOLUTE:
-                                    self.cpuData.memoryArray.push(0xAE);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.memoryArray.push(operandValue[1]);
-                                    self.cpuData.assembler.privatePointer += 3;
-                                    break;
-                            }
-                            break;
-
-                        case 'LDY':
-                            switch (operandType) {
-                                case operandTypes.IMMEDIATE:
-                                    self.cpuData.memoryArray.push(0xA0);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.assembler.privatePointer += 2;
-                                    break;
-
-                                case operandTypes.ABSOLUTE:
-                                    self.cpuData.memoryArray.push(0xAC);
-                                    self.cpuData.memoryArray.push(operandValue[0]);
-                                    self.cpuData.memoryArray.push(operandValue[1]);
-                                    self.cpuData.assembler.privatePointer += 3;
-                                    break;
-                            }
-                            break;
-
-                        case 'NOP':
-                            self.cpuData.memoryArray.push(0xEA);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        case 'STA':
-                            if (operandType == operandTypes.ABSOLUTE) {
-                                self.cpuData.memoryArray.push(0x8D);
-                                self.cpuData.memoryArray.push(operandValue[0]);
-                                self.cpuData.memoryArray.push(operandValue[1]);
-                                self.cpuData.assembler.privatePointer += 3;
-                            }
-                            break;
-
-                        case 'STX':
-                            if (operandType == operandTypes.ABSOLUTE) {
-                                self.cpuData.memoryArray.push(0x8E);
-                                self.cpuData.memoryArray.push(operandValue[0]);
-                                self.cpuData.memoryArray.push(operandValue[1]);
-                                self.cpuData.assembler.privatePointer += 3;
-                            }
-                            break;
-
-                        case 'STY':
-                            if (operandType == operandTypes.ABSOLUTE) {
-                                self.cpuData.memoryArray.push(0x8C);
-                                self.cpuData.memoryArray.push(operandValue[0]);
-                                self.cpuData.memoryArray.push(operandValue[1]);
-                                self.cpuData.assembler.privatePointer += 3;
-                            }
-                            break;
-
-                        case 'TAX':
-                            self.cpuData.memoryArray.push(0xAA);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        case 'TXA':
-                            self.cpuData.memoryArray.push(0x8A);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        case 'TAY':
-                            self.cpuData.memoryArray.push(0xA8);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        case 'TYA':
-                            self.cpuData.memoryArray.push(0x98);
-                            self.cpuData.assembler.privatePointer++;
-                            break;
-
-                        default:
-                            break;
-                    }
+                        }                      
+                        break;
+                    
+                    case '.BYTE':
+                        // .byte $ff, $cc
+                        if (directiveArgs.length > 1) {
+                            directiveArgs.forEach((byteValue, idx) => 
+                                {
+                                    if (byteValue.startsWith('$')) {
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + byteValue.substr(1, 2));
+                                        nextMemoryIndex++;                                
+                                    }                                    
+                                }
+                            );
+                        }                             
+                        break;
+                    
+                    case '.WORD':
+                        // .word $ffee, $99cc
+                        // Note: the word is converted to low byte, high byte so that $04ff is stored as $ff $04
+                        if (directiveArgs.length > 1) {
+                            directiveArgs.forEach((wordValue, idx) => 
+                                {
+                                    if (wordValue.startsWith('$')) {
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + wordValue.substr(3, 2));
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + wordValue.substr(1, 2));
+                                        nextMemoryIndex++;     
+                                    }                                    
+                                }
+                            );
+                        }                                
+                        break;
                 }
             }
+            else {
+                // check for comment
+                if (!line.trim().startsWith(';')) {
+                    // check for label
+                    if (line.trim().endsWith(':')) {
+                        var labelName = line.trim().replace(':', '');
+                        var labelLocation = ("0000" + self.cpuData.assembler.privatePointer).substr(-4, 4);
+
+                        var labelLocationZero = labelLocation.substr(2, 2);
+                        var labelLocationIchi = labelLocation.substr(0, 2);
+
+                        self.cpuData.assembler.labels.labelLocations[labelName] = [];
+                        self.cpuData.assembler.labels.labelLocations[labelName].push(labelLocationZero);
+                        self.cpuData.assembler.labels.labelLocations[labelName].push(labelLocationIchi);
+
+                        // check for predeclaration label calls
+                        if(labelName in self.cpuData.assembler.labels.futureLabels) {
+                            // loop through memory to update
+                            self.cpuData.assembler.labels.futureLabels[labelName].forEach(
+                                (futureLabel, idx) => {
+                                    self.cpuData.memoryArray[futureLabel.MemLocationZero] = parseInt(labelLocationZero);
+                                    self.cpuData.memoryArray[futureLabel.MemLocationIchi] = parseInt(labelLocationIchi);
+                                }
+                            );
+
+                            // after processing clear array
+                            self.cpuData.assembler.labels.futureLabels[labelName] = [];
+                        }
+                    }
+                    else {
+                        var lineParts = line.trim().split(' ');
+                        var operation = lineParts[0].toUpperCase();
+
+                        var operand = '';
+
+                        var operandType = 0;
+                        var operandValue = [];
+
+                        if (lineParts.length > 1) {
+                            operand = lineParts[1];
+
+                            var commentIndex = operand.indexOf(';')
+
+                            // strip end of line comment
+                            if (commentIndex > -1) { operand = operand.substr(0, commentIndex - 1); }
+
+
+                            if (operand.startsWith('#')) {
+                                operandType = operandTypes.IMMEDIATE;
+                                operandValue.push(parseInt("0x" + operand.substr(2)));
+                            }
+                            if (operand.startsWith('$')) {
+                                if (operand.length != 5) {
+                                    alert(`syntax error ${line} absolute values are two bytes.`);
+                                    return;
+                                }
+                                operandType = operandTypes.ABSOLUTE;
+                                operandValue.push(parseInt("0x" + operand.substr(3, 2)));
+                                operandValue.push(parseInt("0x" + operand.substr(1, 2)));
+                            }
+                        }
+
+                        
+
+                        switch (operation) {
+                            case 'ADC':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x69);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x6D);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+                            case 'ASL':
+                                switch (operandType) {
+                                    case operandTypes.NULL:
+                                        // look for A
+                                        if (operand.toUpperCase() == 'A') {
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x0A);
+                                            nextMemoryIndex++;
+                                            self.cpuData.assembler.privatePointer++;
+                                        }
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x0E);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+
+                            case 'DEX':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xCA);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+
+                            case 'DEY':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x88);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'INX':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xE8);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'INY':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xC8);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'JMP':
+                                switch (operandType) {
+                                    case operandTypes.NULL:
+                                        // look for label
+                                        if (operand in self.cpuData.assembler.labels.labelLocations) {
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
+                                            nextMemoryIndex++;
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(self.cpuData.assembler.labels.labelLocations[operand][0]);
+                                            nextMemoryIndex++;
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(self.cpuData.assembler.labels.labelLocations[operand][1]);
+                                            nextMemoryIndex++;
+                                            self.cpuData.assembler.privatePointer += 3;
+                                        }
+                                        else {
+                                            // maybe label will be declared later
+                                            
+                                            var MemLocationZero = 0;
+                                            var MemLocationIchi = 0;
+
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
+                                            nextMemoryIndex++;
+
+                                            self.cpuData.memoryArray[nextMemoryIndex] = 0;
+                                            MemLocationZero = nextMemoryIndex;
+                                            nextMemoryIndex++;
+
+                                            self.cpuData.memoryArray[nextMemoryIndex] = 0;
+                                            MemLocationIchi = nextMemoryIndex;
+                                            nextMemoryIndex++;
+
+                                            // if not in future labels yet, init it
+                                            if(!(operand in self.cpuData.assembler.labels.futureLabels)) {
+                                                self.cpuData.assembler.labels.futureLabels[operand] = [];
+                                            }
+                                            self.cpuData.assembler.labels.futureLabels[operand].push(
+                                                {
+                                                    MemLocationZero,
+                                                    MemLocationIchi,                                                        
+                                                }
+                                            );
+                                        }
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+                                }
+
+                                break;
+
+                            case 'LDA':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xA9);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xAD);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+
+                            case 'LDX':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xA2);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xAE);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+
+                            case 'LDY':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xA0);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xAC);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+
+                            case 'NOP':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xEA);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'STA':
+                                if (operandType == operandTypes.ABSOLUTE) {
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x8D);
+                                    nextMemoryIndex++;
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                    nextMemoryIndex++;
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                    nextMemoryIndex++;
+                                    self.cpuData.assembler.privatePointer += 3;
+                                }
+                                break;
+
+                            case 'STX':
+                                if (operandType == operandTypes.ABSOLUTE) {
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x8E);
+                                    nextMemoryIndex++;
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                    nextMemoryIndex++;
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                    nextMemoryIndex++;
+                                    self.cpuData.assembler.privatePointer += 3;
+                                }
+                                break;
+
+                            case 'STY':
+                                if (operandType == operandTypes.ABSOLUTE) {
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x8C);
+                                    nextMemoryIndex++;
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                    nextMemoryIndex++;
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                    nextMemoryIndex++;
+                                    self.cpuData.assembler.privatePointer += 3;
+                                }
+                                break;
+
+                            case 'TAX':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xAA);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'TXA':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x8A);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'TAY':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xA8);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'TYA':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x98);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                }                
+            }
+
+
         }
     });
 
-    while (self.cpuData.memoryArray.length < 4096) {
-        self.cpuData.memoryArray.push(0);
-    }
+    self.writeMemory();
+
+    // cpu enabled
+    self.cpuData.cpuEnabled = self.cpuEnabled.checked = true;
+
 };
 
 self.writeMemory = () => {
@@ -300,10 +495,14 @@ self.writeMemory = () => {
 
 self.loaderRun = () => {
 
+    if(self.cpuData.programCounter == 0xFFFE){
+        // get word to find origin
+        self.cpuData.programCounter = parseInt('0x' + self.cpuData.memoryArray[0xFFFF].toString(16).toUpperCase() + self.cpuData.memoryArray[0xFFFE].toString(16).toUpperCase());
+    }
 
     var operation = self.cpuData.memoryArray[self.cpuData.programCounter];
-    var opPlusOne = self.cpuData.memoryArray[self.cpuData.programCounter + 1];
-    var opPlusTwo = self.cpuData.memoryArray[self.cpuData.programCounter + 2];
+    var opPlusOne = self.cpuData.memoryArray[self.cpuData.programCounter + 1] || 0;
+    var opPlusTwo = self.cpuData.memoryArray[self.cpuData.programCounter + 2] || 0;
     var oneAndTwo = parseInt('0x' + opPlusTwo.toString(16) + opPlusOne.toString(16));
     var memoryVal = self.cpuData.memoryArray[oneAndTwo];
 
@@ -481,20 +680,36 @@ self.loaderRun = () => {
     if (self.cpuData.programCounter >= self.cpuData.memoryArray.length) { self.cpuData.programCounter = 0; }
 };
 
-self.clockTick = () => {
-    if (self.cpuData.clockState == 1) {
-        self.clock.style.color = '#FF0000';
-        self.loaderRun();
-        self.cpuData.clockState = 0;
+self.updateEnabled = (enabled) => {
+    self.cpuData.cpuEnabled = enabled;
+    self.clock.style.color = '#800000';
+};
+
+self.updateSpeed = (interval) => {
+    if(self.intervalHandle){
+        self.clearInterval(self.intervalHandle);
     }
-    else {
-        self.clock.style.color = '#800000';
-        self.cpuData.clockState = 1;
+    self.intervalHandle = self.setInterval(self.clockTick, parseInt(interval));
+    self.cpuIntervalLabel.innerHTML = `CPU Interval: ${interval}ms`;
+};
+
+self.clockTick = () => {
+    if(self.cpuData.cpuEnabled){
+        if (self.cpuData.clockState == 1) {
+            self.clock.style.color = '#FF0000';
+            self.loaderRun();
+            self.cpuData.clockState = 0;
+        }
+        else {
+            self.clock.style.color = '#800000';
+            self.cpuData.clockState = 1;
+        }
     }
 };
 
 // set interval
-self.intervalHandle = self.setInterval(self.clockTick, 1000);
+self.updateSpeed(1000);
+self.cpuInterval.value = 1000;
 
 // events
 self.prg.onchange = () => {

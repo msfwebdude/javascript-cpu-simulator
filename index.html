@@ -12,6 +12,23 @@
                     <td colspan='8' id='banner'>CPU Simulator</td>
                 </tr>
                 <tr>
+                    <td colspan='4' id='lever'>
+                        <div class="onoffswitch">
+                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="cpuEnabled" onchange="self.updateEnabled(this.checked)">
+                            <label class="onoffswitch-label" for="cpuEnabled">
+                                <span class="onoffswitch-inner"></span>
+                                <span class="onoffswitch-switch"></span>
+                            </label>
+                        </div>                    
+                    </td>
+                    <td colspan='4' id='speed'>
+                        <div class="slidecontainer">
+                            <label for="cpuInterval" class="sliderLabel" id='cpuIntervalLabel'>CPU Interval</label>
+                            <input type="range" min="200" max="5000" value="1000" class="slider" id="cpuInterval" onchange="self.updateSpeed(this.value);" onmousemove="self.cpuIntervalLabel.innerHTML = `CPU Interval: ${this.value}ms`">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <td id='clock' style='color: #800000;'>&#x2600;</td>
                     <td id='loader' colspan='7'>Current Operation</td>
                 </tr>
