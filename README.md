@@ -1,5 +1,5 @@
 ![GitHub](https://img.shields.io/github/license/msfwebdude/javascript-cpu-simulator?style=plastic) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/msfwebdude/javascript-cpu-simulator?style=plastic)
-
+![GitHub last commit](https://img.shields.io/github/last-commit/msfwebdude/javascript-cpu-simulator?style=plastic)
 
 # Javascript CPU simulator
 This is a javascript web page that simulates a cpu.
@@ -33,6 +33,7 @@ Currently the following opcodes work:
 * handle interupts
 * add all flags
 * add more opcodes
+
 
 ## Assembly syntax
 Whitespace before or after is generally ignored 

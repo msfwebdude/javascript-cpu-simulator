@@ -139,14 +139,17 @@ self.assembleCode = () => {
                     // check for label
                     if (line.trim().endsWith(':')) {
                         var labelName = line.trim().replace(':', '');
-                        var labelLocation = ("0000" + self.cpuData.assembler.privatePointer).substr(-4, 4);
+
+                        // fix issue with bad label location
+                        // var labelLocation = ("0000" + self.cpuData.assembler.privatePointer).substr(-4, 4);
+                        var labelLocation = ("0000" + nextMemoryIndex.toString(16)).substr(-4, 4);
+                        console.log(`Label ${labelName} found at ${labelLocation}`);
 
                         var labelLocationZero = labelLocation.substr(2, 2);
                         var labelLocationIchi = labelLocation.substr(0, 2);
 
-                        self.cpuData.assembler.labels.labelLocations[labelName] = [];
-                        self.cpuData.assembler.labels.labelLocations[labelName].push(labelLocationZero);
-                        self.cpuData.assembler.labels.labelLocations[labelName].push(labelLocationIchi);
+                        self.cpuData.assembler.labels.labelLocations[labelName] = [labelLocationZero, labelLocationIchi];
+
 
                         // check for predeclaration label calls
                         if(labelName in self.cpuData.assembler.labels.futureLabels) {
@@ -195,7 +198,7 @@ self.assembleCode = () => {
                             }
                         }
 
-                        
+                        console.log(`${operation} at ${nextMemoryIndex}(${nextMemoryIndex.toString(16)})`);
 
                         switch (operation) {
                             case 'ADC':
@@ -270,6 +273,7 @@ self.assembleCode = () => {
                                     case operandTypes.NULL:
                                         // look for label
                                         if (operand in self.cpuData.assembler.labels.labelLocations) {
+                                            console.log(`found label ${operand} for $${self.cpuData.assembler.labels.labelLocations[operand][1]}${self.cpuData.assembler.labels.labelLocations[operand][0]}`);
                                             self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
                                             nextMemoryIndex++;
                                             self.cpuData.memoryArray[nextMemoryIndex] = parseInt(self.cpuData.assembler.labels.labelLocations[operand][0]);
@@ -280,7 +284,7 @@ self.assembleCode = () => {
                                         }
                                         else {
                                             // maybe label will be declared later
-                                            
+                                            console.log(`label ${operand} not found in ${JSON.stringify(self.cpuData.assembler.labels.labelLocations)}`);
                                             var MemLocationZero = 0;
                                             var MemLocationIchi = 0;
 
@@ -311,7 +315,9 @@ self.assembleCode = () => {
                                     case operandTypes.ABSOLUTE:
                                         self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
                                         nextMemoryIndex++;
-                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue);
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
                                         nextMemoryIndex++;
                                         self.cpuData.assembler.privatePointer += 2;
                                         break;
@@ -511,6 +517,8 @@ self.loaderRun = () => {
     var fmtCounter = '0x' + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
     var currentPfx = `Current Operation: ${fmtCounter}&nbsp;`;
 
+    //console.log(`${operation.toString(16)} => opPlusOne: ${opPlusOne}, opPlusTwo: ${opPlusTwo}, oneAndTwo: ${oneAndTwo}, fmtAddress: ${fmtAddress} `);
+
     switch (operation) {
         case 0x69:
             // ADC immediate
@@ -570,8 +578,11 @@ self.loaderRun = () => {
 
         case 0x4C:
             // JMP 
+            //var existingPC = self.cpuData.programCounter;
+            var hexOneAndTwo = parseInt('0x' + oneAndTwo);
             self.loader.innerHTML = `${currentPfx} JMP to ${fmtAddress}`;
-            self.cpuData.programCounter = oneAndTwo;
+            self.cpuData.programCounter = hexOneAndTwo;
+            //console.log(`=> JMP at ${existingPC} to ${hexOneAndTwo} (${typeof hexOneAndTwo}) or ${fmtAddress} to ${self.cpuData.programCounter}`);
             break;
 
         case 0xA9:
@@ -677,7 +688,7 @@ self.loaderRun = () => {
 
     self.writeMemory();
 
-    if (self.cpuData.programCounter >= self.cpuData.memoryArray.length) { self.cpuData.programCounter = 0; }
+    if (self.cpuData.programCounter >= self.cpuData.memoryArray.length) { self.cpuData.programCounter = 0xFFFE; }
 };
 
 self.updateEnabled = (enabled) => {
