@@ -1,5 +1,40 @@
+// ╔══════════════════════════════════════════════════════════════════════════════════════╗
+// ║                               javascript-cpu-simulator                               ║
+// ╠══════════════════════════════════════════════════════════════════════════════════════╣
+// ║                                                                                      ║
+// ║                    assets/js/cpu.js - the js brains behind it all                    ║
+// ║                                                                                      ║
+// ║                        Copyright (c) 2019 - 2020 Mike Firoved                        ║
+// ║                  MIT License. See ../../LICENSE and ../../README.md                  ║
+// ║                                                                                      ║
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+
 // script source for index.html
 
+
+// Create CPU Data object in this window, or 'self' object
+self.cpuData = {
+    clockState: 0,
+    memoryArray: [],
+    interuptStack: [0],
+    cpuEnabled: false,
+    programCounter: 0xFFFE,
+    registers: {
+        A: 0,
+        X: 0,
+        Y: 0,
+    },
+    assembler: {
+        labels: {
+            labelLocations: {},
+            futureLabels:   {},
+        },
+        privatePointer: 0,
+    }
+};
+
+// put sample code program into assembly
 self.prg.value = `
 ; sample program for 6502
 
@@ -31,26 +66,8 @@ addLoop:
 .byte $00
 `;
 
-self.cpuData = {
-    clockState: 0,
-    memoryArray: [],
-    interuptStack: [0],
-    cpuEnabled: false,
-    programCounter: 0xFFFE,
-    registers: {
-        A: 0,
-        X: 0,
-        Y: 0,
-    },
-    assembler: {
-        labels: {
-            labelLocations: {},
-            futureLabels:   {},
-        },
-        privatePointer: 0,
-    }
-};
 
+// Clear and Initialize Memory - resets all memory locations 
 self.clearAndInitializeMemory = (memorySize) => {
     self.cpuData.memoryArray.length = 0;    
 
@@ -59,8 +76,7 @@ self.clearAndInitializeMemory = (memorySize) => {
     }
 }
 
-
-// cpu functions
+// Assemble Code - take the assembly language code and convert it into machine language
 self.assembleCode = () => {
     // halt cpu for assembly
     self.cpuData.cpuEnabled = self.cpuEnabled.checked = false;
@@ -475,6 +491,7 @@ self.assembleCode = () => {
 
 };
 
+// Write Memory - creates a visual representation of the cpu memory
 self.writeMemory = () => {
     var memText = ""
 
@@ -499,6 +516,7 @@ self.writeMemory = () => {
     self.registers.innerHTML = `Registers&nbsp;&nbsp;[A: ${fmtRegA}]&nbsp;&nbsp;[X: ${fmtRegX}]&nbsp;&nbsp;[Y: ${fmtRegY}]`;
 };
 
+// Loader Run - executes the machine language code
 self.loaderRun = () => {
 
     if(self.cpuData.programCounter == 0xFFFE){
@@ -578,11 +596,9 @@ self.loaderRun = () => {
 
         case 0x4C:
             // JMP 
-            //var existingPC = self.cpuData.programCounter;
             var hexOneAndTwo = parseInt('0x' + oneAndTwo);
             self.loader.innerHTML = `${currentPfx} JMP to ${fmtAddress}`;
             self.cpuData.programCounter = hexOneAndTwo;
-            //console.log(`=> JMP at ${existingPC} to ${hexOneAndTwo} (${typeof hexOneAndTwo}) or ${fmtAddress} to ${self.cpuData.programCounter}`);
             break;
 
         case 0xA9:
@@ -691,11 +707,13 @@ self.loaderRun = () => {
     if (self.cpuData.programCounter >= self.cpuData.memoryArray.length) { self.cpuData.programCounter = 0xFFFE; }
 };
 
+// CPU Enabled Action Function - handles clicks on the enabled switch
 self.updateEnabled = (enabled) => {
     self.cpuData.cpuEnabled = enabled;
     self.clock.style.color = '#800000';
 };
 
+// CPU Speed Slider Action Function - handles changes to the CPU interval
 self.updateSpeed = (interval) => {
     if(self.intervalHandle){
         self.clearInterval(self.intervalHandle);
@@ -704,6 +722,7 @@ self.updateSpeed = (interval) => {
     self.cpuIntervalLabel.innerHTML = `CPU Interval: ${interval}ms`;
 };
 
+// Clock Tick - handles CPU clock tick action
 self.clockTick = () => {
     if(self.cpuData.cpuEnabled){
         if (self.cpuData.clockState == 1) {
@@ -718,12 +737,15 @@ self.clockTick = () => {
     }
 };
 
-// set interval
-self.updateSpeed(1000);
-self.cpuInterval.value = 1000;
+// set default CPU interval and updates speed with function call
+const defaultIntervalValue = 1000;
+self.cpuInterval.value = defaultIntervalValue;
+self.updateSpeed(defaultIntervalValue);
 
-// events
+// PRG On Change - sets the onchange event function handler
 self.prg.onchange = () => {
     self.assembleCode();
 };
+
+// Assemble Code - direct function call to assemble the code into machine language
 self.assembleCode();
