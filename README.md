@@ -30,9 +30,11 @@ Currently the following opcodes work:
 * TYA
 
 ## todo
+Not in order
 * handle interupts
 * add all flags
 * add more opcodes
+* add clear commands
 
 
 ## Assembly syntax
