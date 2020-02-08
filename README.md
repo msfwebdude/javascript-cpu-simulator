@@ -20,6 +20,10 @@ Currently the following opcodes work:
 * ADC
 * AND
 * ASL
+* CLC
+* CLI
+* CLV
+* CLD
 * DEX
 * DEY
 * INX
@@ -29,6 +33,9 @@ Currently the following opcodes work:
 * LDX
 * LDY
 * NOP
+* SEC
+* SEI
+* SED
 * STA
 * STX
 * STY
