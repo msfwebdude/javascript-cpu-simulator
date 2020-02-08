@@ -70,11 +70,21 @@
     }
     #registers
     {
-        width: 800px;
+        /* width: 380px; */
         height: 40px;
-        font-size: 18pt;
+        font-size: 10pt;
         font-family: 'Lucida Console', monospace;
         padding-left: 10px;
+        text-align: center;
+    }
+    #flags
+    {
+        /* width: 350px; */
+        height: 40px;
+        font-size: 10pt;
+        font-family: 'Lucida Console', monospace;
+        padding-left: 10px;
+        text-align: center;
     }
     #assembly
     {

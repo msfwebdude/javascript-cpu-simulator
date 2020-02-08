@@ -25,6 +25,16 @@ self.cpuData = {
         X: 0,
         Y: 0,
     },
+    flags: {
+        negative:  false,
+        overflow:  false,
+        bFlagHigh: false,
+        bFlagLow:  false,
+        decimal:   false,
+        interupt:  false,
+        zero:      false,
+        carry:     false,
+    },
     assembler: {
         labels: {
             labelLocations: {},
@@ -46,6 +56,8 @@ self.prg.value = `
 .org $0003
 
 start:
+    SEC
+    CLC
     LDA #$00
     STA $0040
     ADC #$1E
@@ -159,7 +171,7 @@ self.assembleCode = () => {
                         // fix issue with bad label location
                         // var labelLocation = ("0000" + self.cpuData.assembler.privatePointer).substr(-4, 4);
                         var labelLocation = ("0000" + nextMemoryIndex.toString(16)).substr(-4, 4);
-                        console.log(`Label ${labelName} found at ${labelLocation}`);
+                        //console.log(`Label ${labelName} found at ${labelLocation}`);
 
                         var labelLocationZero = labelLocation.substr(2, 2);
                         var labelLocationIchi = labelLocation.substr(0, 2);
@@ -214,7 +226,7 @@ self.assembleCode = () => {
                             }
                         }
 
-                        console.log(`${operation} at ${nextMemoryIndex}(${nextMemoryIndex.toString(16)})`);
+                        //console.log(`${operation} at ${nextMemoryIndex}(${nextMemoryIndex.toString(16)})`);
 
                         switch (operation) {
                             case 'ADC':
@@ -261,10 +273,53 @@ self.assembleCode = () => {
                                 }
                                 break;
 
+                            case 'CLC':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x18);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+                                
+                            case 'SEC':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x38);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'CLI':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x58);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+                                
+                            case 'SEI':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x78);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'CLV':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xB8);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'CLD':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xD8);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+                                
+                            case 'SED':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xF8);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
                             case 'DEX':
                                 self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xCA);
                                 nextMemoryIndex++;
                                 self.cpuData.assembler.privatePointer++;
+                                break;
 
                             case 'DEY':
                                 self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x88);
@@ -289,7 +344,7 @@ self.assembleCode = () => {
                                     case operandTypes.NULL:
                                         // look for label
                                         if (operand in self.cpuData.assembler.labels.labelLocations) {
-                                            console.log(`found label ${operand} for $${self.cpuData.assembler.labels.labelLocations[operand][1]}${self.cpuData.assembler.labels.labelLocations[operand][0]}`);
+                                            //console.log(`found label ${operand} for $${self.cpuData.assembler.labels.labelLocations[operand][1]}${self.cpuData.assembler.labels.labelLocations[operand][0]}`);
                                             self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
                                             nextMemoryIndex++;
                                             self.cpuData.memoryArray[nextMemoryIndex] = parseInt(self.cpuData.assembler.labels.labelLocations[operand][0]);
@@ -300,7 +355,7 @@ self.assembleCode = () => {
                                         }
                                         else {
                                             // maybe label will be declared later
-                                            console.log(`label ${operand} not found in ${JSON.stringify(self.cpuData.assembler.labels.labelLocations)}`);
+                                            //console.log(`label ${operand} not found in ${JSON.stringify(self.cpuData.assembler.labels.labelLocations)}`);
                                             var MemLocationZero = 0;
                                             var MemLocationIchi = 0;
 
@@ -513,7 +568,18 @@ self.writeMemory = () => {
     var fmtRegX = '0x' + ('00' + self.cpuData.registers.X.toString(16).toUpperCase()).substr(-2, 2);
     var fmtRegY = '0x' + ('00' + self.cpuData.registers.Y.toString(16).toUpperCase()).substr(-2, 2);
 
-    self.registers.innerHTML = `Registers&nbsp;&nbsp;[A: ${fmtRegA}]&nbsp;&nbsp;[X: ${fmtRegX}]&nbsp;&nbsp;[Y: ${fmtRegY}]`;
+    self.registers.innerHTML = `Registers:<br />A: ${fmtRegA}&nbsp;&nbsp;X: ${fmtRegX}&nbsp;&nbsp;Y: ${fmtRegY}`;
+
+    var fmtFlags = '';
+    fmtFlags += `NEG:&nbsp;${self.cpuData.flags.negative ? '1' : '0'}&nbsp;`;
+    fmtFlags += `OVR:&nbsp;${self.cpuData.flags.overflow ? '1' : '0'}&nbsp;`;
+    fmtFlags += `DEC:&nbsp;${self.cpuData.flags.decimal  ? '1' : '0'}&nbsp;`;
+    fmtFlags += `INT:&nbsp;${self.cpuData.flags.interupt ? '1' : '0'}&nbsp;`;
+    fmtFlags += `ZER:&nbsp;${self.cpuData.flags.zero     ? '1' : '0'}&nbsp;`;
+    fmtFlags += `CAR:&nbsp;${self.cpuData.flags.carry    ? '1' : '0'}&nbsp;`;
+    
+
+    self.flags.innerHTML = `Flags:<br />${fmtFlags}`;
 };
 
 // Loader Run - executes the machine language code
@@ -539,7 +605,7 @@ self.loaderRun = () => {
 
     switch (operation) {
         case 0x69:
-            // ADC immediate
+            // ADC immediate 
             self.loader.innerHTML = `${currentPfx} ADC ${fmtImValue}`;
             cpuData.registers.A = cpuData.registers.A + opPlusOne;
             self.cpuData.programCounter += 2;
@@ -698,6 +764,62 @@ self.loaderRun = () => {
             self.cpuData.programCounter += 1;
             break;
 
+
+        case 0x18:
+            // CLC
+            self.loader.innerHTML = `${currentPfx} CLC`;
+            self.cpuData.flags.carry = false;
+            self.cpuData.programCounter += 1;
+            break;
+
+
+        case 0x38:
+            // SEC
+            self.loader.innerHTML = `${currentPfx} SEC`;
+            self.cpuData.flags.carry = true;
+            self.cpuData.programCounter += 1;
+            break;
+
+
+        case 0x58:
+            // CLI
+            self.loader.innerHTML = `${currentPfx} CLI`;
+            self.cpuData.flags.interupt = false;
+            self.cpuData.programCounter += 1;
+            break;
+
+
+        case 0x78:
+            // SEI
+            self.loader.innerHTML = `${currentPfx} SEI`;
+            self.cpuData.flags.interupt = true;
+            self.cpuData.programCounter += 1;
+            break;
+
+
+        case 0xB8:
+            // CLV
+            self.loader.innerHTML = `${currentPfx} CLV`;
+            self.cpuData.flags.overflow = false;
+            self.cpuData.programCounter += 1;
+            break;
+
+
+        case 0xD8:
+            // CLD
+            self.loader.innerHTML = `${currentPfx} CLD`;
+            self.cpuData.flags.decimal = false;
+            self.cpuData.programCounter += 1;
+            break;
+
+
+        case 0xF8:
+            // SED
+            self.loader.innerHTML = `${currentPfx} SED`;
+            self.cpuData.flags.decimal = true;
+            self.cpuData.programCounter += 1;
+            break;
+    
         default:
             break;
     }
@@ -705,6 +827,35 @@ self.loaderRun = () => {
     self.writeMemory();
 
     if (self.cpuData.programCounter >= self.cpuData.memoryArray.length) { self.cpuData.programCounter = 0xFFFE; }
+};
+
+//Convert Value to Flags -  bitwise convert flags from value to flags object
+self.convertValueToFlags = (flagsValue) => {
+    var neoflags = {
+        negative:  ((flagsValue & 0b10000000) != 0),
+        overflow:  ((flagsValue & 0b01000000) != 0),
+        bFlagHigh: ((flagsValue & 0b00100000) != 0),
+        bFlagLow:  ((flagsValue & 0b00010000) != 0),
+        decimal:   ((flagsValue & 0b00001000) != 0),
+        interupt:  ((flagsValue & 0b00000100) != 0),
+        zero:      ((flagsValue & 0b00000010) != 0),
+        carry:     ((flagsValue & 0b00000001) != 0),
+    };
+    return neoflags;
+};
+
+// Convert Flags to Value -  bitwise convert flags from flags object to value
+self.convertFlagsToValue = (flagsObject) => {
+    var neoValue = 0;
+    neoValue += ((flagsObject.negative  ? 0b10000000 : 0));
+    neoValue += ((flagsObject.overflow  ? 0b01000000 : 0));
+    neoValue += ((flagsObject.bFlagHigh ? 0b00100000 : 0));
+    neoValue += ((flagsObject.bFlagLow  ? 0b00010000 : 0));
+    neoValue += ((flagsObject.decimal   ? 0b00001000 : 0));
+    neoValue += ((flagsObject.interupt  ? 0b00000100 : 0));
+    neoValue += ((flagsObject.zero      ? 0b00000010 : 0));
+    neoValue += ((flagsObject.carry     ? 0b00000001 : 0));
+    return neoValue;
 };
 
 // CPU Enabled Action Function - handles clicks on the enabled switch
