@@ -26,19 +26,19 @@ self.cpuData = {
         Y: 0,
     },
     flags: {
-        negative:  false,
-        overflow:  false,
+        negative: false,
+        overflow: false,
         bFlagHigh: false,
-        bFlagLow:  false,
-        decimal:   false,
-        interupt:  false,
-        zero:      false,
-        carry:     false,
+        bFlagLow: false,
+        decimal: false,
+        interupt: false,
+        zero: false,
+        carry: false,
     },
     assembler: {
         labels: {
             labelLocations: {},
-            futureLabels:   {},
+            futureLabels: {},
         },
         privatePointer: 0,
     }
@@ -81,7 +81,7 @@ addLoop:
 
 // Clear and Initialize Memory - resets all memory locations 
 self.clearAndInitializeMemory = (memorySize) => {
-    self.cpuData.memoryArray.length = 0;    
+    self.cpuData.memoryArray.length = 0;
 
     for (let i = 0; i < memorySize; i++) {
         self.cpuData.memoryArray.push(0xff);
@@ -112,52 +112,50 @@ self.assembleCode = () => {
     // iterate through program
     var lines = self.prg.value.replace(/\r\n/g, "\n").split("\n");
     lines.forEach(line => {
-        
+
         if (line.trim() != "") {
             // check for compiler directive
-            if (line.trim().startsWith('.')){
+            if (line.trim().startsWith('.')) {
                 var directiveParts = line.trim().split(' ');
-                var directiveCode  = directiveParts[0].trim().toUpperCase();
-                var directiveArgs  = line.trim().split(/ |,/ig);
+                var directiveCode = directiveParts[0].trim().toUpperCase();
+                var directiveArgs = line.trim().split(/ |,/ig);
                 switch (directiveCode) {
                     case '.ORG':
                         if (directiveParts.length > 1) {
-                            var orgAddress = directiveParts[1];  
+                            var orgAddress = directiveParts[1];
                             if (orgAddress.startsWith('$')) {
                                 nextMemoryIndex = parseInt("0x" + orgAddress.substr(1, 4))
                             }
-                        }                      
+                        }
                         break;
-                    
+
                     case '.BYTE':
                         // .byte $ff, $cc
                         if (directiveArgs.length > 1) {
-                            directiveArgs.forEach((byteValue, idx) => 
-                                {
-                                    if (byteValue.startsWith('$')) {
-                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + byteValue.substr(1, 2));
-                                        nextMemoryIndex++;                                
-                                    }                                    
+                            directiveArgs.forEach((byteValue, idx) => {
+                                if (byteValue.startsWith('$')) {
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + byteValue.substr(1, 2));
+                                    nextMemoryIndex++;
                                 }
+                            }
                             );
-                        }                             
+                        }
                         break;
-                    
+
                     case '.WORD':
                         // .word $ffee, $99cc
                         // Note: the word is converted to low byte, high byte so that $04ff is stored as $ff $04
                         if (directiveArgs.length > 1) {
-                            directiveArgs.forEach((wordValue, idx) => 
-                                {
-                                    if (wordValue.startsWith('$')) {
-                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + wordValue.substr(3, 2));
-                                        nextMemoryIndex++;
-                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + wordValue.substr(1, 2));
-                                        nextMemoryIndex++;     
-                                    }                                    
+                            directiveArgs.forEach((wordValue, idx) => {
+                                if (wordValue.startsWith('$')) {
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + wordValue.substr(3, 2));
+                                    nextMemoryIndex++;
+                                    self.cpuData.memoryArray[nextMemoryIndex] = parseInt("0x" + wordValue.substr(1, 2));
+                                    nextMemoryIndex++;
                                 }
+                            }
                             );
-                        }                                
+                        }
                         break;
                 }
             }
@@ -180,7 +178,7 @@ self.assembleCode = () => {
 
 
                         // check for predeclaration label calls
-                        if(labelName in self.cpuData.assembler.labels.futureLabels) {
+                        if (labelName in self.cpuData.assembler.labels.futureLabels) {
                             // loop through memory to update
                             self.cpuData.assembler.labels.futureLabels[labelName].forEach(
                                 (futureLabel, idx) => {
@@ -250,6 +248,27 @@ self.assembleCode = () => {
                                         break;
                                 }
                                 break;
+                            case 'AND':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x29);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x2D);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
                             case 'ASL':
                                 switch (operandType) {
                                     case operandTypes.NULL:
@@ -278,7 +297,7 @@ self.assembleCode = () => {
                                 nextMemoryIndex++;
                                 self.cpuData.assembler.privatePointer++;
                                 break;
-                                
+
                             case 'SEC':
                                 self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x38);
                                 nextMemoryIndex++;
@@ -290,7 +309,7 @@ self.assembleCode = () => {
                                 nextMemoryIndex++;
                                 self.cpuData.assembler.privatePointer++;
                                 break;
-                                
+
                             case 'SEI':
                                 self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x78);
                                 nextMemoryIndex++;
@@ -308,7 +327,7 @@ self.assembleCode = () => {
                                 nextMemoryIndex++;
                                 self.cpuData.assembler.privatePointer++;
                                 break;
-                                
+
                             case 'SED':
                                 self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xF8);
                                 nextMemoryIndex++;
@@ -371,13 +390,13 @@ self.assembleCode = () => {
                                             nextMemoryIndex++;
 
                                             // if not in future labels yet, init it
-                                            if(!(operand in self.cpuData.assembler.labels.futureLabels)) {
+                                            if (!(operand in self.cpuData.assembler.labels.futureLabels)) {
                                                 self.cpuData.assembler.labels.futureLabels[operand] = [];
                                             }
                                             self.cpuData.assembler.labels.futureLabels[operand].push(
                                                 {
                                                     MemLocationZero,
-                                                    MemLocationIchi,                                                        
+                                                    MemLocationIchi,
                                                 }
                                             );
                                         }
@@ -532,7 +551,7 @@ self.assembleCode = () => {
                                 break;
                         }
                     }
-                }                
+                }
             }
 
 
@@ -573,11 +592,11 @@ self.writeMemory = () => {
     var fmtFlags = '';
     fmtFlags += `NEG:&nbsp;${self.cpuData.flags.negative ? '1' : '0'}&nbsp;`;
     fmtFlags += `OVR:&nbsp;${self.cpuData.flags.overflow ? '1' : '0'}&nbsp;`;
-    fmtFlags += `DEC:&nbsp;${self.cpuData.flags.decimal  ? '1' : '0'}&nbsp;`;
+    fmtFlags += `DEC:&nbsp;${self.cpuData.flags.decimal ? '1' : '0'}&nbsp;`;
     fmtFlags += `INT:&nbsp;${self.cpuData.flags.interupt ? '1' : '0'}&nbsp;`;
-    fmtFlags += `ZER:&nbsp;${self.cpuData.flags.zero     ? '1' : '0'}&nbsp;`;
-    fmtFlags += `CAR:&nbsp;${self.cpuData.flags.carry    ? '1' : '0'}&nbsp;`;
-    
+    fmtFlags += `ZER:&nbsp;${self.cpuData.flags.zero ? '1' : '0'}&nbsp;`;
+    fmtFlags += `CAR:&nbsp;${self.cpuData.flags.carry ? '1' : '0'}&nbsp;`;
+
 
     self.flags.innerHTML = `Flags:<br />${fmtFlags}`;
 };
@@ -585,7 +604,7 @@ self.writeMemory = () => {
 // Loader Run - executes the machine language code
 self.loaderRun = () => {
 
-    if(self.cpuData.programCounter == 0xFFFE){
+    if (self.cpuData.programCounter == 0xFFFE) {
         // get word to find origin
         self.cpuData.programCounter = parseInt('0x' + self.cpuData.memoryArray[0xFFFF].toString(16).toUpperCase() + self.cpuData.memoryArray[0xFFFE].toString(16).toUpperCase());
     }
@@ -617,6 +636,21 @@ self.loaderRun = () => {
             cpuData.registers.A = cpuData.registers.A + memoryVal;
             self.cpuData.programCounter += 3;
             break;
+
+        case 0x29:
+            // AND immediate 
+            self.loader.innerHTML = `${currentPfx} AND ${fmtImValue}`;
+            cpuData.registers.A = cpuData.registers.A & opPlusOne;
+            self.cpuData.programCounter += 2;
+            break;
+
+        case 0x2D:
+            // AND absolute
+            self.loader.innerHTML = `${currentPfx} AND ${oneAndTwo}`;
+            cpuData.registers.A = cpuData.registers.A & memoryVal;
+            self.cpuData.programCounter += 3;
+            break;
+
 
         case 0x0A:
             // ASL A
@@ -819,7 +853,7 @@ self.loaderRun = () => {
             self.cpuData.flags.decimal = true;
             self.cpuData.programCounter += 1;
             break;
-    
+
         default:
             break;
     }
@@ -832,14 +866,14 @@ self.loaderRun = () => {
 //Convert Value to Flags -  bitwise convert flags from value to flags object
 self.convertValueToFlags = (flagsValue) => {
     var neoflags = {
-        negative:  ((flagsValue & 0b10000000) != 0),
-        overflow:  ((flagsValue & 0b01000000) != 0),
+        negative: ((flagsValue & 0b10000000) != 0),
+        overflow: ((flagsValue & 0b01000000) != 0),
         bFlagHigh: ((flagsValue & 0b00100000) != 0),
-        bFlagLow:  ((flagsValue & 0b00010000) != 0),
-        decimal:   ((flagsValue & 0b00001000) != 0),
-        interupt:  ((flagsValue & 0b00000100) != 0),
-        zero:      ((flagsValue & 0b00000010) != 0),
-        carry:     ((flagsValue & 0b00000001) != 0),
+        bFlagLow: ((flagsValue & 0b00010000) != 0),
+        decimal: ((flagsValue & 0b00001000) != 0),
+        interupt: ((flagsValue & 0b00000100) != 0),
+        zero: ((flagsValue & 0b00000010) != 0),
+        carry: ((flagsValue & 0b00000001) != 0),
     };
     return neoflags;
 };
@@ -847,14 +881,14 @@ self.convertValueToFlags = (flagsValue) => {
 // Convert Flags to Value -  bitwise convert flags from flags object to value
 self.convertFlagsToValue = (flagsObject) => {
     var neoValue = 0;
-    neoValue += ((flagsObject.negative  ? 0b10000000 : 0));
-    neoValue += ((flagsObject.overflow  ? 0b01000000 : 0));
+    neoValue += ((flagsObject.negative ? 0b10000000 : 0));
+    neoValue += ((flagsObject.overflow ? 0b01000000 : 0));
     neoValue += ((flagsObject.bFlagHigh ? 0b00100000 : 0));
-    neoValue += ((flagsObject.bFlagLow  ? 0b00010000 : 0));
-    neoValue += ((flagsObject.decimal   ? 0b00001000 : 0));
-    neoValue += ((flagsObject.interupt  ? 0b00000100 : 0));
-    neoValue += ((flagsObject.zero      ? 0b00000010 : 0));
-    neoValue += ((flagsObject.carry     ? 0b00000001 : 0));
+    neoValue += ((flagsObject.bFlagLow ? 0b00010000 : 0));
+    neoValue += ((flagsObject.decimal ? 0b00001000 : 0));
+    neoValue += ((flagsObject.interupt ? 0b00000100 : 0));
+    neoValue += ((flagsObject.zero ? 0b00000010 : 0));
+    neoValue += ((flagsObject.carry ? 0b00000001 : 0));
     return neoValue;
 };
 
@@ -866,7 +900,7 @@ self.updateEnabled = (enabled) => {
 
 // CPU Speed Slider Action Function - handles changes to the CPU interval
 self.updateSpeed = (interval) => {
-    if(self.intervalHandle){
+    if (self.intervalHandle) {
         self.clearInterval(self.intervalHandle);
     }
     self.intervalHandle = self.setInterval(self.clockTick, parseInt(interval));
@@ -875,7 +909,7 @@ self.updateSpeed = (interval) => {
 
 // Clock Tick - handles CPU clock tick action
 self.clockTick = () => {
-    if(self.cpuData.cpuEnabled){
+    if (self.cpuData.cpuEnabled) {
         if (self.cpuData.clockState == 1) {
             self.clock.style.color = '#FF0000';
             self.loaderRun();
