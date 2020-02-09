@@ -627,6 +627,7 @@ self.loaderRun = () => {
             // ADC immediate 
             self.loader.innerHTML = `${currentPfx} ADC ${fmtImValue}`;
             var sum = self.cpuData.registers.A + opPlusOne;
+            self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
                 self.cpuData.flags.carry = true;
@@ -642,6 +643,7 @@ self.loaderRun = () => {
             // ADC absolute
             self.loader.innerHTML = `${currentPfx} ADC ${oneAndTwo}`;
             var sum = self.cpuData.registers.A + memoryVal;
+            self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
                 self.cpuData.flags.carry = true;
@@ -678,6 +680,7 @@ self.loaderRun = () => {
             // ASL A
             self.loader.innerHTML = `${currentPfx} ASL A`;
             var sum = self.cpuData.registers.A << 1;
+            self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
                 self.cpuData.flags.carry = true;
@@ -692,6 +695,7 @@ self.loaderRun = () => {
             // ASL absolute
             self.loader.innerHTML = `${currentPfx} ASL ${oneAndTwo}`;
             var sum = self.cpuData.memoryArray[oneAndTwo] << 1;
+            self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
                 self.cpuData.flags.carry = true;
