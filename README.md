@@ -47,9 +47,11 @@ Currently the following opcodes work:
 ## todo
 Not in order
 * handle interupts
-* add all flags
+* ~~add all flags~~
 * add more opcodes
-* add clear commands
+* ~~add clear commands~~
+
+moving todo over to a [board](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1)
 
 
 ## Assembly syntax

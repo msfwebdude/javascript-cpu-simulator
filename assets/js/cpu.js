@@ -626,28 +626,50 @@ self.loaderRun = () => {
         case 0x69:
             // ADC immediate 
             self.loader.innerHTML = `${currentPfx} ADC ${fmtImValue}`;
-            cpuData.registers.A = cpuData.registers.A + opPlusOne;
+            var sum = self.cpuData.registers.A + opPlusOne;
+            if(sum > 0xFF){
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.flags.overflow = (!((opPlusOne ^ self.cpuData.registers.A) & 0x80));
+            self.cpuData.registers.A = sum;
             self.cpuData.programCounter += 2;
             break;
 
         case 0x6D:
             // ADC absolute
             self.loader.innerHTML = `${currentPfx} ADC ${oneAndTwo}`;
-            cpuData.registers.A = cpuData.registers.A + memoryVal;
+            var sum = self.cpuData.registers.A + memoryVal;
+            if(sum > 0xFF){
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.registers.A = sum;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.flags.overflow = (!((memoryVal ^ self.cpuData.registers.A) & 0x80));
             self.cpuData.programCounter += 3;
             break;
 
         case 0x29:
             // AND immediate 
             self.loader.innerHTML = `${currentPfx} AND ${fmtImValue}`;
-            cpuData.registers.A = cpuData.registers.A & opPlusOne;
+            var sum = self.cpuData.registers.A & opPlusOne;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;
             self.cpuData.programCounter += 2;
             break;
 
         case 0x2D:
             // AND absolute
             self.loader.innerHTML = `${currentPfx} AND ${oneAndTwo}`;
-            cpuData.registers.A = cpuData.registers.A & memoryVal;
+            var sum = self.cpuData.registers.A & memoryVal;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;            
             self.cpuData.programCounter += 3;
             break;
 
@@ -655,42 +677,68 @@ self.loaderRun = () => {
         case 0x0A:
             // ASL A
             self.loader.innerHTML = `${currentPfx} ASL A`;
-            cpuData.registers.A = cpuData.registers.A << 1;
+            var sum = self.cpuData.registers.A << 1;
+            if(sum > 0xFF){
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;
             self.cpuData.programCounter += 1;
             break;
 
         case 0x0E:
             // ASL absolute
             self.loader.innerHTML = `${currentPfx} ASL ${oneAndTwo}`;
-            self.cpuData.memoryArray[oneAndTwo] = self.cpuData.memoryArray[oneAndTwo] << 1;
+            var sum = self.cpuData.memoryArray[oneAndTwo] << 1;
+            if(sum > 0xFF){
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.memoryArray[oneAndTwo] = sum;            
             self.cpuData.programCounter += 3;
             break;
 
         case 0xCA:
             // DEX
             self.loader.innerHTML = `${currentPfx} DEX`;
-            self.cpuData.registers.X--;
+            var sum = self.cpuData.registers.X - 1;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.X = sum;
             self.cpuData.programCounter += 1;
             break;
 
         case 0x88:
             // DEY 
             self.loader.innerHTML = `${currentPfx} DEY`;
-            self.cpuData.registers.Y--;
+            var sum = self.cpuData.registers.Y - 1;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.Y    = sum;
             self.cpuData.programCounter += 1;
             break;
 
         case 0xE8:
             // INX
             self.loader.innerHTML = `${currentPfx} INX`;
-            self.cpuData.registers.X++;
+            var sum = self.cpuData.registers.X + 1;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.X    = sum;
             self.cpuData.programCounter += 1;
             break;
 
         case 0xC8:
             // INY
             self.loader.innerHTML = `${currentPfx} INY`;
-            self.cpuData.registers.Y++;
+            var sum = self.cpuData.registers.Y + 1;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.Y    = sum;
             self.cpuData.programCounter += 1;
             break;
 
@@ -704,42 +752,60 @@ self.loaderRun = () => {
         case 0xA9:
             // LDA immediate
             self.loader.innerHTML = `${currentPfx} LDA ${fmtImValue}`;
-            cpuData.registers.A = opPlusOne;
+            var sum = opPlusOne;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;
             self.cpuData.programCounter += 2;
             break;
 
         case 0xAD:
             // LDA absolute
             self.loader.innerHTML = `${currentPfx} LDA ${fmtAddress}`;
-            cpuData.registers.A = memoryVal;
+            var sum = memoryVal;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;
             self.cpuData.programCounter += 3;
             break;
 
         case 0xA2:
             // LDX immediate
             self.loader.innerHTML = `${currentPfx} LDX ${fmtImValue}`;
-            cpuData.registers.X = opPlusOne;
+            var sum = opPlusOne;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.X    = sum;
             self.cpuData.programCounter += 2;
             break;
 
         case 0xAE:
             // LDX absolute
             self.loader.innerHTML = `${currentPfx} LDX ${fmtAddress}`;
-            cpuData.registers.X = memoryVal;
+            var sum = memoryVal;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.x    = sum;
             self.cpuData.programCounter += 3;
             break;
 
         case 0xA0:
             // LDY immediate
             self.loader.innerHTML = `${currentPfx} LDY ${fmtImValue}`;
-            cpuData.registers.Y = opPlusOne;
+            var sum = opPlusOne;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.Y    = sum;
             self.cpuData.programCounter += 2;
             break;
 
         case 0xAC:
             // LDY absolute
             self.loader.innerHTML = `${currentPfx} LDY ${fmtAddress}`;
-            cpuData.registers.Y = memoryVal;
+            var sum = memoryVal;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.Y    = sum;            
             self.cpuData.programCounter += 3;
             break;
 
@@ -773,28 +839,40 @@ self.loaderRun = () => {
         case 0xAA:
             // TAX
             self.loader.innerHTML = `${currentPfx} TAX`;
-            self.cpuData.registers.X = cpuData.registers.A;
+            var sum = self.cpuData.registers.A;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.X    = sum;            
             self.cpuData.programCounter += 1;
             break;
 
         case 0x8A:
             // TXA
             self.loader.innerHTML = `${currentPfx} TXA`;
-            self.cpuData.registers.A = cpuData.registers.X;
+            var sum = self.cpuData.registers.X;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;            
             self.cpuData.programCounter += 1;
             break;
 
         case 0xA8:
             // TAY
             self.loader.innerHTML = `${currentPfx} TAY`;
-            self.cpuData.registers.Y = cpuData.registers.A;
+            var sum = self.cpuData.registers.A;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.Y    = sum;                
             self.cpuData.programCounter += 1;
             break;
 
         case 0x98:
             // TYA
             self.loader.innerHTML = `${currentPfx} TYA`;
-            self.cpuData.registers.A = cpuData.registers.Y;
+            var sum = self.cpuData.registers.Y;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;               
             self.cpuData.programCounter += 1;
             break;
 
