@@ -948,14 +948,14 @@ self.loaderRun = () => {
 //Convert Value to Flags -  bitwise convert flags from value to flags object
 self.convertValueToFlags = (flagsValue) => {
     var neoflags = {
-        negative: ((flagsValue & 0b10000000) != 0),
-        overflow: ((flagsValue & 0b01000000) != 0),
+        negative:  ((flagsValue & 0b10000000) != 0),
+        overflow:  ((flagsValue & 0b01000000) != 0),
         bFlagHigh: ((flagsValue & 0b00100000) != 0),
-        bFlagLow: ((flagsValue & 0b00010000) != 0),
-        decimal: ((flagsValue & 0b00001000) != 0),
-        interupt: ((flagsValue & 0b00000100) != 0),
-        zero: ((flagsValue & 0b00000010) != 0),
-        carry: ((flagsValue & 0b00000001) != 0),
+        bFlagLow:  ((flagsValue & 0b00010000) != 0),
+        decimal:   ((flagsValue & 0b00001000) != 0),
+        interupt:  ((flagsValue & 0b00000100) != 0),
+        zero:      ((flagsValue & 0b00000010) != 0),
+        carry:     ((flagsValue & 0b00000001) != 0),
     };
     return neoflags;
 };
@@ -963,14 +963,14 @@ self.convertValueToFlags = (flagsValue) => {
 // Convert Flags to Value -  bitwise convert flags from flags object to value
 self.convertFlagsToValue = (flagsObject) => {
     var neoValue = 0;
-    neoValue += ((flagsObject.negative ? 0b10000000 : 0));
-    neoValue += ((flagsObject.overflow ? 0b01000000 : 0));
+    neoValue += ((flagsObject.negative  ? 0b10000000 : 0));
+    neoValue += ((flagsObject.overflow  ? 0b01000000 : 0));
     neoValue += ((flagsObject.bFlagHigh ? 0b00100000 : 0));
-    neoValue += ((flagsObject.bFlagLow ? 0b00010000 : 0));
-    neoValue += ((flagsObject.decimal ? 0b00001000 : 0));
-    neoValue += ((flagsObject.interupt ? 0b00000100 : 0));
-    neoValue += ((flagsObject.zero ? 0b00000010 : 0));
-    neoValue += ((flagsObject.carry ? 0b00000001 : 0));
+    neoValue += ((flagsObject.bFlagLow  ? 0b00010000 : 0));
+    neoValue += ((flagsObject.decimal   ? 0b00001000 : 0));
+    neoValue += ((flagsObject.interupt  ? 0b00000100 : 0));
+    neoValue += ((flagsObject.zero      ? 0b00000010 : 0));
+    neoValue += ((flagsObject.carry     ? 0b00000001 : 0));
     return neoValue;
 };
 
