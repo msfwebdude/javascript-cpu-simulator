@@ -23,7 +23,7 @@ self.cpuData = {
         A: 0,
         X: 0,
         Y: 0,
-        S: 0xFF,   // stack pointer
+        S: Math.floor(Math.random() * 256),   // stack pointer
     },
     flags: {
         negative: false,
@@ -953,7 +953,7 @@ self.loaderRun = () => {
 
         case 0x9A:
             // TXS
-            self.loader.innerHTML = `${currentPfx} TAY`;
+            self.loader.innerHTML = `${currentPfx} TXS`;
             var sum = self.cpuData.registers.X;
             self.cpuData.flags.zero     = (sum == 0);
             self.cpuData.flags.negative = (sum > 0x7F);
@@ -963,7 +963,7 @@ self.loaderRun = () => {
 
         case 0xBA:
             // TSX
-            self.loader.innerHTML = `${currentPfx} TYA`;
+            self.loader.innerHTML = `${currentPfx} TSX`;
             var sum = self.cpuData.registers.S;
             self.cpuData.flags.zero     = (sum == 0);
             self.cpuData.flags.negative = (sum > 0x7F);
