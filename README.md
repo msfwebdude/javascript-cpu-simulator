@@ -16,44 +16,24 @@ Try it out [here](http://firoved.com/github/javascript-cpu-simulator/)
 ## opcodes - assembly language commands
 The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6502opcodes.html).
 
-Currently the following opcodes work:
-* ADC
-* AND
-* ASL
-* CLC
-* CLI
-* CLV
-* CLD
-* DEX
-* DEY
-* INX
-* INY
-* JMP
-* LDA
-* LDX
-* LDY
-* NOP
-* SEC
-* SEI
-* SED
-* STA
-* STX
-* STY
-* TAX
-* TXA
-* TAY
-* TYA
-* TSX
-* TXS
+### Currently the following opcodes work:
 
-## todo
-Not in order
-* handle interupts
-* ~~add all flags~~
-* add more opcodes
-* ~~add clear commands~~
+| Math    | Load and Store | Transfer | Clear and Set | Logic   | Stack   | Branch  | Etc     | 
+|:-------:|:--------------:|:--------:|:-------------:|:-------:|:-------:|:-------:|:-------:|
+| ADC     | LDA            | TAX      | CLC           | AND     | ~~PHA~~ | ~~BCC~~ | NOP     |
+| ASL     | LDX            | TAY      | CLD           | ~~CMP~~ | ~~PLP~~ | ~~BCS~~ | ~~BRK~~ |
+| DEX     | LDY            | TSX      | CLI           | ~~CPX~~ | ~~RTI~~ | ~~BEQ~~ |         |
+| DEY     | STA            | TXA      | CLV           | ~~CPY~~ | ~~RTS~~ | ~~BMI~~ |         |
+| INX     | STX            | TXS      | SEC           | ~~EOR~~ |         | ~~BNE~~ |         |
+| INY     | STY            | TYA      | SED           | ~~ORA~~ |         | ~~BPL~~ |         |
+| ~~LSR~~ |                |          | SEI           |         |         | ~~BVC~~ |         |
+| ~~ROL~~ |                |          |               |         |         | ~~BCS~~ |         |
+| ~~ROR~~ |                |          |               |         |         |  JMP    |         |
+| ~~SBC~~ |                |          |               |         |         | ~~JSR~~ |         |
 
-moving todo over to a [board](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1)
+## Todo
+
+ The Todo  Kanban Board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
 
 
 ## Assembly syntax
