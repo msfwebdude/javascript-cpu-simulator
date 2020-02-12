@@ -16,16 +16,16 @@ Try it out [here](http://firoved.com/github/javascript-cpu-simulator/)
 ## opcodes - assembly language commands
 The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6502opcodes.html).
 
-### Currently the following opcodes work:
+### Currently the following opcodes are supported:
 
 | Math    | Load and Store | Transfer | Clear and Set | Logic   | Stack   | Branch  | Etc     | 
 |:-------:|:--------------:|:--------:|:-------------:|:-------:|:-------:|:-------:|:-------:|
-| ADC     | LDA            | TAX      | CLC           | AND     | ~~PHA~~ | ~~BCC~~ | NOP     |
-| ASL     | LDX            | TAY      | CLD           | ~~CMP~~ | ~~PLP~~ | ~~BCS~~ | ~~BRK~~ |
-| DEX     | LDY            | TSX      | CLI           | ~~CPX~~ | ~~RTI~~ | ~~BEQ~~ |         |
-| DEY     | STA            | TXA      | CLV           | ~~CPY~~ | ~~RTS~~ | ~~BMI~~ |         |
-| INX     | STX            | TXS      | SEC           | ~~EOR~~ |         | ~~BNE~~ |         |
-| INY     | STY            | TYA      | SED           | ~~ORA~~ |         | ~~BPL~~ |         |
+| ADC     | LDA            | TAX      | CLC           | AND     | PHA     | ~~BCC~~ | NOP     |
+| ASL     | LDX            | TAY      | CLD           | ~~CMP~~ | PLA     | ~~BCS~~ | ~~BRK~~ |
+| DEX     | LDY            | TSX      | CLI           | ~~CPX~~ | PHP     | ~~BEQ~~ |         |
+| DEY     | STA            | TXA      | CLV           | ~~CPY~~ | PLP     | ~~BMI~~ |         |
+| INX     | STX            | TXS      | SEC           | ~~EOR~~ | ~~RTI~~ | ~~BNE~~ |         |
+| INY     | STY            | TYA      | SED           | ~~ORA~~ | ~~RTS~~ | ~~BPL~~ |         |
 | ~~LSR~~ |                |          | SEI           |         |         | ~~BVC~~ |         |
 | ~~ROL~~ |                |          |               |         |         | ~~BCS~~ |         |
 | ~~ROR~~ |                |          |               |         |         |  JMP    |         |
