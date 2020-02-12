@@ -557,9 +557,8 @@ self.writeMemory = () => {
     var fmtRegX  = '$' + ('00' + self.cpuData.registers.X.toString(16).toUpperCase()).substr(-2, 2);
     var fmtRegY  = '$' + ('00' + self.cpuData.registers.Y.toString(16).toUpperCase()).substr(-2, 2);
     var fmtRegS  = '$' + ('00' + self.cpuData.registers.S.toString(16).toUpperCase()).substr(-2, 2);
-    var fmtRegPC = '$' + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
 
-    self.registers.innerHTML = `Registers:<br />A: ${fmtRegA}&nbsp;&nbsp;X: ${fmtRegX}&nbsp;&nbsp;Y: ${fmtRegY}&nbsp;&nbsp;SP: ${fmtRegS}&nbsp;&nbsp;PC: ${fmtRegPC}`;
+    self.registers.innerHTML = `Registers:<br />A: ${fmtRegA}&nbsp;&nbsp;X: ${fmtRegX}&nbsp;&nbsp;Y: ${fmtRegY}&nbsp;&nbsp;SP: ${fmtRegS}`;
 
     var fmtFlags = '';
     fmtFlags += `NEG:&nbsp;${self.cpuData.flags.negative ? '1' : '0'}&nbsp;`;
