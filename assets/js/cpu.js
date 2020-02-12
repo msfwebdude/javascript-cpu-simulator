@@ -13,74 +13,6 @@
 // script source for index.html
 
 
-// Create CPU Data object in this window, or 'self' object
-self.cpuData = {
-    cpuEnabled: false,
-    clockState: 0,
-    memoryArray: [],
-    programCounter: 0xFFFE,
-    registers: {
-        A: 0,
-        X: 0,
-        Y: 0,
-        S: Math.floor(Math.random() * 256),   // stack pointer
-    },
-    flags: {
-        negative: false,
-        overflow: false,
-        bFlagHigh: false,
-        bFlagLow: false,
-        decimal: false,
-        interupt: false,
-        zero: false,
-        carry: false,
-    },
-    assembler: {
-        labels: {
-            labelLocations: {},
-            futureLabels: {},
-        },
-        privatePointer: 0,
-    }
-};
-
-// put sample code program into assembly
-self.prg.value = `
-; sample program for 6502
-
-.chip 65C02
-
-.org $FFFE
-.word $0003
-    
-.org $0003
-
-start:
-    LDX #$FF
-    TXS
-    SEC
-    CLC
-    LDA #$00
-    STA $0040
-    ADC #$1E
-    LDA #$04
-    ASL A
-    STA $0021
-
-addLoop:
-    LDA $0040
-    TAX
-    INX
-    TXA
-    STA $0040
-    JMP addLoop
-    NOP
-
-.org $0040
-.byte $00
-`;
-
-
 // Clear and Initialize Memory - resets all memory locations 
 self.clearAndInitializeMemory = (memorySize) => {
     self.cpuData.memoryArray.length = 0;
@@ -561,6 +493,30 @@ self.assembleCode = () => {
                                 self.cpuData.assembler.privatePointer++;
                                 break;
 
+                            case 'PHA':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x48);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'PLA':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x68);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'PHP':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x08);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'PLP':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x28);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
                             default:
                                 break;
                         }
@@ -597,12 +553,13 @@ self.writeMemory = () => {
     self.mem.value = memText;
     memText.length = 0;
 
-    var fmtRegA = '0x' + ('00' + self.cpuData.registers.A.toString(16).toUpperCase()).substr(-2, 2);
-    var fmtRegX = '0x' + ('00' + self.cpuData.registers.X.toString(16).toUpperCase()).substr(-2, 2);
-    var fmtRegY = '0x' + ('00' + self.cpuData.registers.Y.toString(16).toUpperCase()).substr(-2, 2);
-    var fmtRegS = '0x' + ('00' + self.cpuData.registers.S.toString(16).toUpperCase()).substr(-2, 2);
+    var fmtRegA  = '$' + ('00' + self.cpuData.registers.A.toString(16).toUpperCase()).substr(-2, 2);
+    var fmtRegX  = '$' + ('00' + self.cpuData.registers.X.toString(16).toUpperCase()).substr(-2, 2);
+    var fmtRegY  = '$' + ('00' + self.cpuData.registers.Y.toString(16).toUpperCase()).substr(-2, 2);
+    var fmtRegS  = '$' + ('00' + self.cpuData.registers.S.toString(16).toUpperCase()).substr(-2, 2);
+    var fmtRegPC = '$' + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
 
-    self.registers.innerHTML = `Registers:<br />A: ${fmtRegA}&nbsp;&nbsp;X: ${fmtRegX}&nbsp;&nbsp;Y: ${fmtRegY}&nbsp;&nbsp;SP: ${fmtRegS}`;
+    self.registers.innerHTML = `Registers:<br />A: ${fmtRegA}&nbsp;&nbsp;X: ${fmtRegX}&nbsp;&nbsp;Y: ${fmtRegY}&nbsp;&nbsp;SP: ${fmtRegS}&nbsp;&nbsp;PC: ${fmtRegPC}`;
 
     var fmtFlags = '';
     fmtFlags += `NEG:&nbsp;${self.cpuData.flags.negative ? '1' : '0'}&nbsp;`;
@@ -971,6 +928,40 @@ self.loaderRun = () => {
             self.cpuData.programCounter += 1;
             break;
 
+        case 0x48:
+            // PHA
+            self.loader.innerHTML = `${currentPfx} PHA`;
+            self.cpuData.memoryArray[0x100 + self.cpuData.registers.S] = self.cpuData.registers.A;
+            self.cpuData.registers.S--;
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x68:
+            // PLA
+            self.loader.innerHTML = `${currentPfx} PLA`;
+            self.cpuData.registers.S++;
+            self.cpuData.registers.A = self.cpuData.memoryArray[0x100 + self.cpuData.registers.S];
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x08:
+            // PHP
+            self.loader.innerHTML = `${currentPfx} PHP`;
+            var processorStatus = self.convertFlagsToValue(self.cpuData.flags);
+            self.cpuData.memoryArray[0x100 + self.cpuData.registers.S] = processorStatus;
+            self.cpuData.registers.S--;
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x28:
+            // PLP
+            self.loader.innerHTML = `${currentPfx} PLP`;
+            self.cpuData.registers.S++;
+            var processorStatus = self.cpuData.memoryArray[0x100 + self.cpuData.registers.S];
+            self.cpuData.flags  = self.convertValueToFlags(processorStatus);
+            self.cpuData.programCounter += 1;
+            break;
+
         default:
             break;
     }
@@ -1038,6 +1029,76 @@ self.clockTick = () => {
         }
     }
 };
+
+
+// Create CPU Data object in this window, or 'self' object
+self.cpuData = {
+    cpuEnabled: false,
+    clockState: 0,
+    memoryArray: [],
+    programCounter: 0xFFFE,
+    registers: {
+        A: 0,
+        X: 0,
+        Y: 0,
+        S: Math.floor(Math.random() * 256),   // stack pointer
+    },
+    flags: {
+        negative: false,
+        overflow: false,
+        bFlagHigh: false,
+        bFlagLow: false,
+        decimal: false,
+        interupt: false,
+        zero: false,
+        carry: false,
+    },
+    assembler: {
+        labels: {
+            labelLocations: {},
+            futureLabels: {},
+        },
+        privatePointer: 0,
+    }
+};
+
+// put sample code program into assembly
+self.prg.value = `
+; sample program for 6502
+
+.chip 65C02
+
+.org $FFFE
+.word $0003
+    
+.org $0003
+
+start:
+    LDX #$FF
+    TXS
+    SEC
+    CLC
+    LDA #$00
+    STA $0040
+    ADC #$1E
+    LDA #$04
+    ASL A
+    STA $0021
+
+addLoop:
+    LDA $0040
+    TAX
+    INX
+    TXA
+    STA $0040
+    JMP addLoop
+    NOP
+
+.org $0040
+.byte $00
+`;
+
+
 
 // set default CPU interval and updates speed with function call
 const defaultIntervalValue = 1000;
