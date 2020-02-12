@@ -15,15 +15,15 @@
 
 // Create CPU Data object in this window, or 'self' object
 self.cpuData = {
+    cpuEnabled: false,
     clockState: 0,
     memoryArray: [],
-    interuptStack: [0],
-    cpuEnabled: false,
     programCounter: 0xFFFE,
     registers: {
         A: 0,
         X: 0,
         Y: 0,
+        stackPointer: 0,
     },
     flags: {
         negative: false,
@@ -547,6 +547,18 @@ self.assembleCode = () => {
                                 self.cpuData.assembler.privatePointer++;
                                 break;
 
+                            case 'TSX':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xBA);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'TXS':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x9A);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
                             default:
                                 break;
                         }
@@ -933,6 +945,26 @@ self.loaderRun = () => {
             // SED
             self.loader.innerHTML = `${currentPfx} SED`;
             self.cpuData.flags.decimal = true;
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x9A:
+            // TXS
+            self.loader.innerHTML = `${currentPfx} TAY`;
+            var sum = self.cpuData.registers.X;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.stackPointer    = sum;                
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0xBA:
+            // TSX
+            self.loader.innerHTML = `${currentPfx} TYA`;
+            var sum = self.cpuData.registers.stackPointer;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.X    = sum;               
             self.cpuData.programCounter += 1;
             break;
 

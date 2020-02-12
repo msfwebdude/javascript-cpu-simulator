@@ -43,6 +43,8 @@ Currently the following opcodes work:
 * TXA
 * TAY
 * TYA
+* TSX
+* TXS
 
 ## todo
 Not in order
