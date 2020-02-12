@@ -16,7 +16,7 @@ Try it out [here](http://firoved.com/github/javascript-cpu-simulator/)
 ## opcodes - assembly language commands
 The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6502opcodes.html).
 
-### Currently the following opcodes are supported:
+### Currently the following opcodes work:
 
 | Math    | Load and Store | Transfer | Clear and Set | Logic   | Stack   | Branch  | Etc     | 
 |:-------:|:--------------:|:--------:|:-------------:|:-------:|:-------:|:-------:|:-------:|
@@ -24,8 +24,8 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 | ASL     | LDX            | TAY      | CLD           | ~~CMP~~ | PLA     | ~~BCS~~ | ~~BRK~~ |
 | DEX     | LDY            | TSX      | CLI           | ~~CPX~~ | PHP     | ~~BEQ~~ |         |
 | DEY     | STA            | TXA      | CLV           | ~~CPY~~ | PLP     | ~~BMI~~ |         |
-| INX     | STX            | TXS      | SEC           | ~~EOR~~ | ~~RTI~~ | ~~BNE~~ |         |
-| INY     | STY            | TYA      | SED           | ~~ORA~~ | ~~RTS~~ | ~~BPL~~ |         |
+| INX     | STX            | TXS      | SEC           | EOR     | ~~RTI~~ | ~~BNE~~ |         |
+| INY     | STY            | TYA      | SED           | ORA     | ~~RTS~~ | ~~BPL~~ |         |
 | ~~LSR~~ |                |          | SEI           |         |         | ~~BVC~~ |         |
 | ~~ROL~~ |                |          |               |         |         | ~~BCS~~ |         |
 | ~~ROR~~ |                |          |               |         |         |  JMP    |         |
@@ -35,12 +35,4 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 
  The Todo  Kanban Board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
 
-
-## Assembly syntax
-Whitespace before or after is generally ignored 
-
-* comments begin with a semicolon (;)
-* labels end with a semicolon (:)
-* immediate values begin with hash dollar sign (#$)
-* memory locations begin with dollar sign ($)
 
