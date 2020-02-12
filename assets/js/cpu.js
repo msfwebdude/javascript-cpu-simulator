@@ -23,7 +23,7 @@ self.cpuData = {
         A: 0,
         X: 0,
         Y: 0,
-        stackPointer: 0,
+        S: 0xFF,   // stack pointer
     },
     flags: {
         negative: false,
@@ -598,8 +598,9 @@ self.writeMemory = () => {
     var fmtRegA = '0x' + ('00' + self.cpuData.registers.A.toString(16).toUpperCase()).substr(-2, 2);
     var fmtRegX = '0x' + ('00' + self.cpuData.registers.X.toString(16).toUpperCase()).substr(-2, 2);
     var fmtRegY = '0x' + ('00' + self.cpuData.registers.Y.toString(16).toUpperCase()).substr(-2, 2);
+    var fmtRegS = '0x' + ('00' + self.cpuData.registers.S.toString(16).toUpperCase()).substr(-2, 2);
 
-    self.registers.innerHTML = `Registers:<br />A: ${fmtRegA}&nbsp;&nbsp;X: ${fmtRegX}&nbsp;&nbsp;Y: ${fmtRegY}`;
+    self.registers.innerHTML = `Registers:<br />A: ${fmtRegA}&nbsp;&nbsp;X: ${fmtRegX}&nbsp;&nbsp;Y: ${fmtRegY}&nbsp;&nbsp;SP: ${fmtRegS}`;
 
     var fmtFlags = '';
     fmtFlags += `NEG:&nbsp;${self.cpuData.flags.negative ? '1' : '0'}&nbsp;`;
@@ -954,14 +955,14 @@ self.loaderRun = () => {
             var sum = self.cpuData.registers.X;
             self.cpuData.flags.zero     = (sum == 0);
             self.cpuData.flags.negative = (sum > 0x7F);
-            self.cpuData.registers.stackPointer    = sum;                
+            self.cpuData.registers.S    = sum;                
             self.cpuData.programCounter += 1;
             break;
 
         case 0xBA:
             // TSX
             self.loader.innerHTML = `${currentPfx} TYA`;
-            var sum = self.cpuData.registers.stackPointer;
+            var sum = self.cpuData.registers.S;
             self.cpuData.flags.zero     = (sum == 0);
             self.cpuData.flags.negative = (sum > 0x7F);
             self.cpuData.registers.X    = sum;               
