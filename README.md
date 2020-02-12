@@ -26,9 +26,9 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 | DEY     | STA            | TXA      | CLV           | ~~CPY~~ | PLP     | ~~BMI~~ |         |
 | INX     | STX            | TXS      | SEC           | EOR     | ~~RTI~~ | ~~BNE~~ |         |
 | INY     | STY            | TYA      | SED           | ORA     | ~~RTS~~ | ~~BPL~~ |         |
-| ~~LSR~~ |                |          | SEI           |         |         | ~~BVC~~ |         |
-| ~~ROL~~ |                |          |               |         |         | ~~BCS~~ |         |
-| ~~ROR~~ |                |          |               |         |         |  JMP    |         |
+| LSR     |                |          | SEI           |         |         | ~~BVC~~ |         |
+| ROL     |                |          |               |         |         | ~~BCS~~ |         |
+| ROR     |                |          |               |         |         |  JMP    |         |
 | ~~SBC~~ |                |          |               |         |         | ~~JSR~~ |         |
 
 ## Todo

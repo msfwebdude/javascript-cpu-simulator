@@ -203,6 +203,7 @@ self.assembleCode = () => {
                                         break;
                                 }
                                 break;
+
                             case 'ASL':
                                 switch (operandType) {
                                     case operandTypes.NULL:
@@ -561,6 +562,75 @@ self.assembleCode = () => {
                                 }
                                 break;
 
+                            case 'LSR':
+                                switch (operandType) {
+                                    case operandTypes.NULL:
+                                        // look for A
+                                        if (operand.toUpperCase() == 'A') {
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4A);
+                                            nextMemoryIndex++;
+                                            self.cpuData.assembler.privatePointer++;
+                                        }
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4E);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;           
+
+                            case 'ROL':
+                                switch (operandType) {
+                                    case operandTypes.NULL:
+                                        // look for A
+                                        if (operand.toUpperCase() == 'A') {
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x2A);
+                                            nextMemoryIndex++;
+                                            self.cpuData.assembler.privatePointer++;
+                                        }
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x2E);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;            
+
+                            case 'ROR':
+                                switch (operandType) {
+                                    case operandTypes.NULL:
+                                        // look for A
+                                        if (operand.toUpperCase() == 'A') {
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x6A);
+                                            nextMemoryIndex++;
+                                            self.cpuData.assembler.privatePointer++;
+                                        }
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x6E);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;                                 
+
                             default:
                                 break;
                         }
@@ -708,7 +778,7 @@ self.loaderRun = () => {
 
         case 0x0E:
             // ASL absolute
-            self.loader.innerHTML = `${currentPfx} ASL ${oneAndTwo}`;
+            self.loader.innerHTML = `${currentPfx} ASL ${fmtAddress}`;
             var sum = self.cpuData.memoryArray[oneAndTwo] << 1;
             self.cpuData.flags.carry = false;
             if(sum > 0xFF){
@@ -1044,6 +1114,78 @@ self.loaderRun = () => {
             self.cpuData.registers.A    = sum;            
             self.cpuData.programCounter += 3;
             break;
+
+        case 0x4A:
+            // LSR A
+            self.loader.innerHTML = `${currentPfx} LSR A`;
+            var bit0 = self.cpuData.registers.A & 0x01; 
+            var sum  = self.cpuData.registers.A >> 1;
+            self.cpuData.flags.carry    = (bit0 == 1);
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x4E:
+            // LSR absolute
+            self.loader.innerHTML = `${currentPfx} LSR ${fmtAddress}`;
+            var bit0 = self.cpuData.memoryArray[oneAndTwo] & 0x01; 
+            var sum  = self.cpuData.memoryArray[oneAndTwo] >> 1;
+            self.cpuData.flags.carry    = (bit0 == 1);
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.memoryArray[oneAndTwo] = sum;            
+            self.cpuData.programCounter += 3;
+            break;
+
+        case 0x2A:
+            // ROL A
+            self.loader.innerHTML = `${currentPfx} ROL A`;
+            var bit7 = self.cpuData.registers.A & 0x80; 
+            var sum  = (self.cpuData.registers.A << 1) | (self.cpuData.flags.carry ? 1 : 0);
+            self.cpuData.flags.carry    = (bit7 == 1);
+            self.cpuData.flags.zero     = (sum  == 0);
+            self.cpuData.flags.negative = (sum  > 0x7F);
+            self.cpuData.registers.A    = sum;
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x2E:
+            // ROL absolute
+            self.loader.innerHTML = `${currentPfx} ROL ${fmtAddress}`;
+            var bit7 = self.cpuData.memoryArray[oneAndTwo] & 0x80;
+            var sum  = (self.cpuData.memoryArray[oneAndTwo] << 1) | (self.cpuData.flags.carry ? 0x01 : 0x00);
+            self.cpuData.flags.carry    = (bit7 == 1);
+            self.cpuData.flags.zero     = (sum  == 0);
+            self.cpuData.flags.negative = (sum  > 0x7F);
+            self.cpuData.memoryArray[oneAndTwo] = sum;            
+            self.cpuData.programCounter += 3;
+            break;			
+
+        case 0x6A:
+            // ROR A
+            self.loader.innerHTML = `${currentPfx} ROR A`;
+            var bit0 = self.cpuData.registers.A & 0x01; 
+            var sum  = (self.cpuData.registers.A >> 1) | (self.cpuData.flags.carry ? 0x80 : 0x00);
+            self.cpuData.flags.carry    = (bit0 == 1);
+            self.cpuData.flags.zero     = (sum  == 0);
+            self.cpuData.flags.negative = (sum  > 0x7F);
+            self.cpuData.registers.A    = sum;
+            self.cpuData.programCounter += 1;
+            break;
+
+        case 0x6E:
+            // ROR absolute
+            self.loader.innerHTML = `${currentPfx} ROR ${fmtAddress}`;
+            var bit0 = self.cpuData.memoryArray[oneAndTwo] & 0x01;
+            var sum  = (self.cpuData.memoryArray[oneAndTwo] >> 1) | (self.cpuData.flags.carry ? 0x80 : 0x00);
+            self.cpuData.flags.carry    = (bit0 == 1);
+            self.cpuData.flags.zero     = (sum  == 0);
+            self.cpuData.flags.negative = (sum  > 0x7F);
+            self.cpuData.memoryArray[oneAndTwo] = sum;            
+            self.cpuData.programCounter += 3;
+            break;	
 
         default:
             break;
