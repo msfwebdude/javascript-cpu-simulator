@@ -517,6 +517,50 @@ self.assembleCode = () => {
                                 self.cpuData.assembler.privatePointer++;
                                 break;
 
+                            case 'EOR':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x49);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4D);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+                                
+                            case 'ORA':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x09);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x0D);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+
                             default:
                                 break;
                         }
@@ -588,7 +632,7 @@ self.loaderRun = () => {
 
     var fmtAddress = '0x' + ('0000' + oneAndTwo.toString(16).toUpperCase()).substr(-4, 4);
     var fmtImValue = '0x' + ('0000' + opPlusOne.toString(16).toUpperCase()).substr(-2, 2);
-    var fmtCounter = '0x' + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
+    var fmtCounter = '$' + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
     var currentPfx = `Current Operation: ${fmtCounter}&nbsp;`;
 
     //console.log(`${operation.toString(16)} => opPlusOne: ${opPlusOne}, opPlusTwo: ${opPlusTwo}, oneAndTwo: ${oneAndTwo}, fmtAddress: ${fmtAddress} `);
@@ -959,6 +1003,46 @@ self.loaderRun = () => {
             var processorStatus = self.cpuData.memoryArray[0x100 + self.cpuData.registers.S];
             self.cpuData.flags  = self.convertValueToFlags(processorStatus);
             self.cpuData.programCounter += 1;
+            break;
+
+        case 0x49:
+            // EOR immediate 
+            self.loader.innerHTML = `${currentPfx} EOR ${fmtImValue}`;
+            var sum = self.cpuData.registers.A ^ opPlusOne;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;
+            self.cpuData.programCounter += 2;
+            break;
+
+        case 0x4D:
+            // EOR absolute
+            self.loader.innerHTML = `${currentPfx} EOR ${oneAndTwo}`;
+            var sum = self.cpuData.registers.A ^ memoryVal;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;            
+            self.cpuData.programCounter += 3;
+            break;
+
+        case 0x09:
+            // ORA immediate 
+            self.loader.innerHTML = `${currentPfx} ORA ${fmtImValue}`;
+            var sum = self.cpuData.registers.A | opPlusOne;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;
+            self.cpuData.programCounter += 2;
+            break;
+
+        case 0x0D:
+            // ORA absolute
+            self.loader.innerHTML = `${currentPfx} ORA ${oneAndTwo}`;
+            var sum = self.cpuData.registers.A | memoryVal;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.registers.A    = sum;            
+            self.cpuData.programCounter += 3;
             break;
 
         default:
