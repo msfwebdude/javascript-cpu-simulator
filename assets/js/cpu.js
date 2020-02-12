@@ -56,6 +56,8 @@ self.prg.value = `
 .org $0003
 
 start:
+    LDX #$FF
+    TXS
     SEC
     CLC
     LDA #$00
