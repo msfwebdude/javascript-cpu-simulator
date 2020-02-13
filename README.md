@@ -31,6 +31,11 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 | ROR     |                |          |               |         |         |  JMP    |         |
 | ~~SBC~~ |                |          |               |         |         | ~~JSR~~ |         |
 
+## Assembler control commands
+* .ORG - sets the origination point in memory of the next command or opcode
+* .BTYE - adds a byte to memory
+* .WORD - adds two bytes or a word to memory
+
 ## Todo
 
  The Todo  Kanban Board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
