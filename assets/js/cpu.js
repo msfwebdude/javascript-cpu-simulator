@@ -39,6 +39,7 @@ self.assembleCode = () => {
         NULL: 0,
         IMMEDIATE: 1,
         ABSOLUTE: 2,
+        RELATIVE: 3,
     };
 
     var nextMemoryIndex = 0;
@@ -116,8 +117,16 @@ self.assembleCode = () => {
                             // loop through memory to update
                             self.cpuData.assembler.labels.futureLabels[labelName].forEach(
                                 (futureLabel, idx) => {
-                                    self.cpuData.memoryArray[futureLabel.MemLocationZero] = parseInt(labelLocationZero);
-                                    self.cpuData.memoryArray[futureLabel.MemLocationIchi] = parseInt(labelLocationIchi);
+                                    if(futureLabel.isRelative){
+                                        var offset = nextMemoryIndex - operandLocationForOffset;
+                                        offset += 256;      // handle negative numbers with two's compliment for negative offset
+                                        offset &= 0xFF;     // for positive offset and with byte mask to get true offset
+                                        self.cpuData.memoryArray[futureLabel.memLocationRelative] = offset;
+                                    }
+                                    else {
+                                        self.cpuData.memoryArray[futureLabel.memLocationZero] = parseInt(labelLocationZero);
+                                        self.cpuData.memoryArray[futureLabel.memLocationIchi] = parseInt(labelLocationIchi);
+                                    }
                                 }
                             );
 
@@ -148,13 +157,21 @@ self.assembleCode = () => {
                                 operandValue.push(parseInt("0x" + operand.substr(2)));
                             }
                             if (operand.startsWith('$')) {
-                                if (operand.length != 5) {
-                                    alert(`syntax error ${line} absolute values are two bytes.`);
-                                    return;
+                                if(operand.length == 3){
+                                    operandType = operandTypes.RELATIVE;
+                                    operandValue.push(parseInt(operand));
                                 }
-                                operandType = operandTypes.ABSOLUTE;
-                                operandValue.push(parseInt("0x" + operand.substr(3, 2)));
-                                operandValue.push(parseInt("0x" + operand.substr(1, 2)));
+                                if(operand.length == 5){
+                                    operandType = operandTypes.ABSOLUTE;
+                                    operandValue.push(parseInt("0x" + operand.substr(3, 2)));
+                                    operandValue.push(parseInt("0x" + operand.substr(1, 2)));
+                                }
+                            }
+                            else {
+                                if(/^(-[0-9]|[0-9])/.test(operand)){
+                                    operandType = operandTypes.RELATIVE;
+                                    operandValue.push(parseInt(operand));
+                                }
                             }
                         }
 
@@ -310,18 +327,18 @@ self.assembleCode = () => {
                                         else {
                                             // maybe label will be declared later
                                             //console.log(`label ${operand} not found in ${JSON.stringify(self.cpuData.assembler.labels.labelLocations)}`);
-                                            var MemLocationZero = 0;
-                                            var MemLocationIchi = 0;
+                                            var memLocationZero = 0;
+                                            var memLocationIchi = 0;
 
                                             self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
                                             nextMemoryIndex++;
 
                                             self.cpuData.memoryArray[nextMemoryIndex] = 0;
-                                            MemLocationZero = nextMemoryIndex;
+                                            memLocationZero = nextMemoryIndex;
                                             nextMemoryIndex++;
 
                                             self.cpuData.memoryArray[nextMemoryIndex] = 0;
-                                            MemLocationIchi = nextMemoryIndex;
+                                            memLocationIchi = nextMemoryIndex;
                                             nextMemoryIndex++;
 
                                             // if not in future labels yet, init it
@@ -330,8 +347,11 @@ self.assembleCode = () => {
                                             }
                                             self.cpuData.assembler.labels.futureLabels[operand].push(
                                                 {
-                                                    MemLocationZero,
-                                                    MemLocationIchi,
+                                                    isRelative: false,
+                                                    memLocationZero,
+                                                    memLocationIchi,
+                                                    memLocationRelative: 0,
+                                                    operandLocationForOffset: 0,
                                                 }
                                             );
                                         }
@@ -646,10 +666,73 @@ self.assembleCode = () => {
                                 };
                                 var opcode = opcodes[operation];
 
-                                // find offset for label
-                                break;                               
-                                
+                                switch (operandType) {
+                                    case operandTypes.NULL:
+                                        // look for label, find offset for label
+                                        if (operand in self.cpuData.assembler.labels.labelLocations) {
+                                            // calculate offset to label location
+                                            var offset = parseInt(`0x${self.cpuData.assembler.labels.labelLocations[operand][1]}${self.cpuData.assembler.labels.labelLocations[operand][0]}`);
+                                            offset += 256;      // handle negative numbers with two's compliment for negative offset
+                                            offset &= 0xFF;     // for positive offset and with byte mask to get true offset   
 
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(opcode);
+                                            nextMemoryIndex++;
+                                            self.cpuData.memoryArray[nextMemoryIndex] = offset;
+                                            nextMemoryIndex++;
+                                            self.cpuData.assembler.privatePointer += 2;
+                                        }
+                                        else {
+                                            // maybe label will be declared later
+                                            var memLocationRelative      = 0;
+                                            var operandLocationForOffset = 0;
+
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(opcode);
+                                            operandLocationForOffset = nextMemoryIndex;
+                                            nextMemoryIndex++;
+
+                                            self.cpuData.memoryArray[nextMemoryIndex] = 0;
+                                            memLocationRelative = nextMemoryIndex;
+                                            nextMemoryIndex++;
+
+                                            self.cpuData.memoryArray[nextMemoryIndex] = 0;
+                                            memLocationIchi = nextMemoryIndex;
+                                            nextMemoryIndex++;
+
+                                            // if not in future labels yet, init it
+                                            if (!(operand in self.cpuData.assembler.labels.futureLabels)) {
+                                                self.cpuData.assembler.labels.futureLabels[operand] = [];
+                                            }
+                                            self.cpuData.assembler.labels.futureLabels[operand].push(
+                                                {
+                                                    isRelative: true,
+                                                    memLocationZero: 0,
+                                                    memLocationIchi: 0,
+                                                    memLocationRelative,
+                                                    operandLocationForOffset,
+                                                }
+                                            );
+                                        }                                
+                                        break;      
+                                        
+                                    case operandTypes.RELATIVE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(opcode);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(opcode);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                
                             default:
                                 break;
                         }
@@ -723,8 +806,6 @@ self.loaderRun = () => {
     var fmtImValue = '0x' + ('0000' + opPlusOne.toString(16).toUpperCase()).substr(-2, 2);
     var fmtCounter = '$' + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
     var currentPfx = `Current Operation: ${fmtCounter}&nbsp;`;
-
-    //console.log(`${operation.toString(16)} => opPlusOne: ${opPlusOne}, opPlusTwo: ${opPlusTwo}, oneAndTwo: ${oneAndTwo}, fmtAddress: ${fmtAddress} `);
 
     switch (operation) {
         case 0x69:
@@ -1206,6 +1287,96 @@ self.loaderRun = () => {
             self.cpuData.programCounter += 3;
             break;	
 
+
+        case 0x10:
+            // BPL 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BPL offset ${offset}`;
+            if(!self.cpuData.flags.negative){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+
+        case 0x30:
+            // BMI 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BMI offset ${offset}`;
+            if(self.cpuData.flags.negative){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+
+        case 0x50:
+            // BVC 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BVC offset ${offset}`;
+            if(!self.cpuData.flags.overflow){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+
+        case 0x70:
+            // BVS 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BVS offset ${offset}`;
+            if(self.cpuData.flags.overflow){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+
+        case 0x90:
+            // BCC 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BCC offset ${offset}`;
+            if(!self.cpuData.flags.carry){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+
+        case 0xB0:
+            // BCS 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BCS offset ${offset}`;
+            if(self.cpuData.flags.carry){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+
+        case 0xD0:
+            // BNE 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BNE offset ${offset}`;
+            if(!self.cpuData.flags.zero){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+
+        case 0xF0:
+            // BEQ 
+            var offset = parseInt('0x' + opPlusOne);
+            if(offset & 0x80) { offset -= 256; }
+            self.loader.innerHTML = `${currentPfx} BEQ offset ${offset}`;
+            if(self.cpuData.flags.zero){
+                self.cpuData.programCounter += offset;
+            }          
+            break;
+
+            
+            
         default:
             break;
     }
@@ -1316,6 +1487,21 @@ self.prg.value = `
 .word $0003
     
 .org $0003
+
+    JMP tstBrhB
+
+tstBrhA:
+    LDA #$FF
+    BNE start
+    NOP
+    NOP
+
+tstBrhB:
+    LDA #$00
+    BEQ tstBrhA
+    NOP
+    NOP
+    NOP
 
 start:
     LDX #$FF
