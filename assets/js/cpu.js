@@ -1488,21 +1488,6 @@ self.prg.value = `
     
 .org $0003
 
-    JMP tstBrhB
-
-tstBrhA:
-    LDA #$FF
-    BNE start
-    NOP
-    NOP
-
-tstBrhB:
-    LDA #$00
-    BEQ tstBrhA
-    NOP
-    NOP
-    NOP
-
 start:
     LDX #$FF
     TXS
