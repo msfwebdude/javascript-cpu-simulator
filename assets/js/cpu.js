@@ -629,7 +629,26 @@ self.assembleCode = () => {
                                         self.cpuData.assembler.privatePointer += 3;
                                         break;
                                 }
-                                break;                                 
+                                break;
+                            
+                            case "BPL":
+                            case "BMI":
+                            case "BVC":
+                            case "BVS":
+                            case "BCC":
+                            case "BCS":
+                            case "BNE":
+                            case "BEQ":
+                                var opcodes = {
+                                    BPL: 0x10, BMI: 0x30, BVC: 0x50,
+                                    BVS: 0x70, BCC: 0x90, BCS: 0xB0,
+                                    BNE: 0xD0, BEQ: 0xF0,
+                                };
+                                var opcode = opcodes[operation];
+
+                                // find offset for label
+                                break;                               
+                                
 
                             default:
                                 break;
