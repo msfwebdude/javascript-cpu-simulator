@@ -31,6 +31,21 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 | ROR     |                |          |               |         |         | JMP     |         |
 | ~~SBC~~ |                |          |               |         |         | ~~JSR~~ |         |
 
+
+## Registers and Flags
+The flags and registers mimic the 6502 processor.
+
+### Registers
+ * A Register
+ * X Register
+ * Y Register
+ * Stack Pointer (S Register)
+
+
+ ### Flags
+| Negative | Overflow | Break H | Break L | Decimal | Interrupt | Zero | Carry |
+|---|---|---|---|---|---|---|---|
+
 ## Assembler control commands
 * .ORG - sets the origination point in memory of the next command or opcode
 * .BTYE - adds a byte to memory
