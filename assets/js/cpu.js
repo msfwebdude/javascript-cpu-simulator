@@ -1151,6 +1151,8 @@ self.loaderRun = () => {
             // PHP
             self.loader.innerHTML = `${currentPfx} PHP`;
             var processorStatus = self.convertFlagsToValue(self.cpuData.flags);
+            processorStatus.bFlagHigh = true;
+            processorStatus.bFlagLow  = true;
             self.cpuData.memoryArray[0x100 + self.cpuData.registers.S] = processorStatus;
             self.cpuData.registers.S--;
             self.cpuData.programCounter += 1;
