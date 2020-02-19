@@ -1587,11 +1587,13 @@ addLoop:
 `;
 
 
-
 // set default CPU interval and updates speed with function call
 const defaultIntervalValue = 1000;
 self.cpuInterval.value = defaultIntervalValue;
 self.updateSpeed(defaultIntervalValue);
+
+const now = new Date();
+self.currentYear.innerHTML = now.getFullYear();
 
 // PRG On Change - sets the onchange event function handler
 self.prg.onchange = () => {

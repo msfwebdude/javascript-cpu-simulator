@@ -127,7 +127,21 @@
     {
         width: 350px;         
     }
-
+    .footer
+    {
+        width: 25%; 
+        margin: auto; 
+        font-family: monospace; 
+        text-align: center;
+        color: #F0F0F0;
+    }
+    .footer a
+    {
+        font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+        font-weight: bold;
+        color: #FFFFFE;
+        text-decoration: none;
+    }
 
 
 
