@@ -1578,6 +1578,7 @@ addLoop:
     INX
     TXA
     STA $0040
+    BIT $0040
     JMP addLoop
     NOP
 
