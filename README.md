@@ -29,7 +29,7 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 | LSR     |                |          | SEI           |         |         | BVC     |         |
 | ROL     |                |          |               |         |         | BCS     |         |
 | ROR     |                |          |               |         |         | JMP     |         |
-| ~~SBC~~ |                |          |               |         |         | ~~JSR~~ |         |
+| SBC     |                |          |               |         |         | ~~JSR~~ |         |
 
 
 ## Registers and Flags
