@@ -310,9 +310,9 @@ self.assembleCode = () => {
                                         if (operand in self.cpuData.assembler.labels.labelLocations) {
                                             self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
                                             nextMemoryIndex++;
-                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(self.cpuData.assembler.labels.labelLocations[operand][0]);
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt('0x' + self.cpuData.assembler.labels.labelLocations[operand][0]);
                                             nextMemoryIndex++;
-                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(self.cpuData.assembler.labels.labelLocations[operand][1]);
+                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt('0x' + self.cpuData.assembler.labels.labelLocations[operand][1]);
                                             nextMemoryIndex++;
                                             self.cpuData.assembler.privatePointer += 3;
                                         }
