@@ -2,15 +2,12 @@
 // ║                               javascript-cpu-simulator                               ║
 // ╠══════════════════════════════════════════════════════════════════════════════════════╣
 // ║                                                                                      ║
-// ║                    assets/js/cpu.js - the js brains behind it all                    ║
+// ║         assets/js/cpu.js - the js brains behind it all, called by index.html         ║
 // ║                                                                                      ║
 // ║                        Copyright (c) 2019 - 2020 Mike Firoved                        ║
 // ║                  MIT License. See ../../LICENSE and ../../README.md                  ║
 // ║                                                                                      ║
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
-
-
-// script source for index.html
 
 
 // Clear and Initialize Memory - resets all memory locations 
@@ -665,6 +662,20 @@ self.assembleCode = () => {
                                         self.cpuData.assembler.privatePointer += 3;
                                         break;
                                 }
+                                break;
+
+                            case "BIT":
+                                switch (operandType) {
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x2C);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }                               
                                 break;
                             
                             case "BPL":
@@ -1423,7 +1434,15 @@ self.loaderRun = () => {
             }          
             break;
 
-            
+        case 0x2C:
+            // BIT absolute
+            self.loader.innerHTML = `${currentPfx} BIT ${fmtAddress}`;
+            var sum = self.cpuData.registers.A & memoryVal;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (memoryVal & 0x80) > 0;
+            self.cpuData.flags.overflow = (memoryVal & 0x40) > 0;
+            self.cpuData.programCounter += 3;
+            break;
             
         default:
             break;
