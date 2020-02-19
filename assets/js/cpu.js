@@ -644,6 +644,28 @@ self.assembleCode = () => {
                                         break;
                                 }
                                 break;
+
+                            case 'SBC':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xE9);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xED);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
                             
                             case "BPL":
                             case "BMI":
@@ -830,6 +852,40 @@ self.loaderRun = () => {
             self.cpuData.flags.overflow = (!((memoryVal ^ self.cpuData.registers.A) & 0x80));
             self.cpuData.programCounter += 3;
             break;
+
+        case 0xE9:
+            // SBC immediate 
+            self.loader.innerHTML = `${currentPfx} SBC ${fmtImValue}`;
+            var sum = self.cpuData.registers.A - opPlusOne;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.flags.overflow = (!((opPlusOne ^ self.cpuData.registers.A) & 0x80));
+            self.cpuData.registers.A = sum;
+            self.cpuData.programCounter += 2;
+            break;
+
+        case 0xED:
+            // SBC absolute
+            self.loader.innerHTML = `${currentPfx} SBC ${oneAndTwo}`;
+            var sum = self.cpuData.registers.A - memoryVal;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.registers.A = sum;
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.flags.overflow = (!((memoryVal ^ self.cpuData.registers.A) & 0x80));
+            self.cpuData.programCounter += 3;
+            break;        
 
         case 0x29:
             // AND immediate 
@@ -1480,21 +1536,6 @@ self.prg.value = `
     
 .org $0003
 
-    JMP tstBrhB
-
-tstBrhA:
-    LDA #$FF
-    BNE start
-    NOP
-    NOP
-
-tstBrhB:
-    LDA #$00
-    BEQ tstBrhA
-    NOP
-    NOP
-    NOP
-
 start:
     LDX #$FF
     TXS
@@ -1506,6 +1547,11 @@ start:
     LDA #$04
     ASL A
     STA $0021
+    LDA #$40
+    STA $0050
+    LDA $0050
+    SBC #$20
+    NOP
 
 addLoop:
     LDA $0040
