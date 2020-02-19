@@ -21,12 +21,12 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 | Math    | Load and Store | Transfer | Clear and Set | Logic   | Stack   | Branch  | Etc     | 
 |:-------:|:--------------:|:--------:|:-------------:|:-------:|:-------:|:-------:|:-------:|
 | ADC     | LDA            | TAX      | CLC           | AND     | PHA     | BCC     | NOP     |
-| ASL     | LDX            | TAY      | CLD           | ~~CMP~~ | PLA     | BCS     | ~~BRK~~ |
-| DEX     | LDY            | TSX      | CLI           | ~~CPX~~ | PHP     | BEQ     |         |
-| DEY     | STA            | TXA      | CLV           | ~~CPY~~ | PLP     | BMI     |         |
-| INX     | STX            | TXS      | SEC           | EOR     | ~~RTI~~ | BNE     |         |
-| INY     | STY            | TYA      | SED           | ORA     | ~~RTS~~ | BPL     |         |
-| LSR     |                |          | SEI           | BIT     |         | BVC     |         |
+| ASL     | LDX            | TAY      | CLD           | BIT     | PLA     | BCS     | ~~BRK~~ |
+| DEX     | LDY            | TSX      | CLI           | ~~CMP~~ | PHP     | BEQ     |         |
+| DEY     | STA            | TXA      | CLV           | ~~CPX~~ | PLP     | BMI     |         |
+| INX     | STX            | TXS      | SEC           | ~~CPY~~ | ~~RTI~~ | BNE     |         |
+| INY     | STY            | TYA      | SED           | EOR     | ~~RTS~~ | BPL     |         |
+| LSR     |                |          | SEI           | ORA     |         | BVC     |         |
 | ROL     |                |          |               |         |         | BCS     |         |
 | ROR     |                |          |               |         |         | JMP     |         |
 | SBC     |                |          |               |         |         | ~~JSR~~ |         |

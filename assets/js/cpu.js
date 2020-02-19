@@ -1526,19 +1526,19 @@ self.cpuData = {
         S: Math.floor(Math.random() * 256),   // stack pointer
     },
     flags: {
-        negative: false,
-        overflow: false,
+        negative:  false,
+        overflow:  false,
         bFlagHigh: false,
-        bFlagLow: false,
-        decimal: false,
-        interupt: false,
-        zero: false,
-        carry: false,
+        bFlagLow:  false,
+        decimal:   false,
+        interupt:  false,
+        zero:      false,
+        carry:     false,
     },
     assembler: {
         labels: {
             labelLocations: {},
-            futureLabels: {},
+            futureLabels:   {},
         },
         privatePointer: 0,
     }
