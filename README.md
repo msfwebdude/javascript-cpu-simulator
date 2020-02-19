@@ -6,7 +6,7 @@ This is a JavaScript web page that simulates a 6502 CPU.
 
 Back in January of 2015, because I was a huge fan of the 6502, I created a Visual Basic 6 implementation of a [6502 simulator](https://www.planet-source-code.com/vb/scripts/ShowCode.asp?txtCodeId=22670&lngWId=1). Since I really love JS, I thought about creating a HTML / CSS / JS project which simulates a 6502 CPU and see how far I could go with it.
 
-The CPU that I am modeling this after is the maker community's beloved 8bit CPU from 1980's, the 6502. Some famous 6502 based computers are the [Commodore VIC 20](https://en.wikipedia.org/wiki/Commodore_VIC-20), [Atari 2600](https://en.wikipedia.org/wiki/Atari_2600), and the [Apple IIe](https://en.wikipedia.org/wiki/Apple_IIe)
+The CPU that I am modeling this after is the maker community's beloved 8-bit CPU from 1980's, the 6502. Some famous 6502 based computers are the [Commodore VIC 20](https://en.wikipedia.org/wiki/Commodore_VIC-20), [Atari 2600](https://en.wikipedia.org/wiki/Atari_2600), and the [Apple IIe](https://en.wikipedia.org/wiki/Apple_IIe)
 
 ## Try it out
 Try it out [here](http://firoved.com/github/javascript-cpu-simulator/)
@@ -26,7 +26,7 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 | DEY     | STA            | TXA      | CLV           | ~~CPY~~ | PLP     | BMI     |         |
 | INX     | STX            | TXS      | SEC           | EOR     | ~~RTI~~ | BNE     |         |
 | INY     | STY            | TYA      | SED           | ORA     | ~~RTS~~ | BPL     |         |
-| LSR     |                |          | SEI           |         |         | BVC     |         |
+| LSR     |                |          | SEI           | BIT     |         | BVC     |         |
 | ROL     |                |          |               |         |         | BCS     |         |
 | ROR     |                |          |               |         |         | JMP     |         |
 | SBC     |                |          |               |         |         | ~~JSR~~ |         |
