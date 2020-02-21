@@ -1570,7 +1570,6 @@ start:
     STA $0050
     LDA $0050
     SBC #$20
-    NOP
 
 addLoop:
     LDA $0040
@@ -1580,7 +1579,6 @@ addLoop:
     STA $0040
     BIT $0040
     JMP addLoop
-    NOP
 
 .org $0040
 .byte $00
