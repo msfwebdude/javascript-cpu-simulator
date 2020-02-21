@@ -10,27 +10,26 @@
         ║                                                                                      ║
         ╚══════════════════════════════════════════════════════════════════════════════════════╝        
     */
-    body
-    {
+    body {
         height: 100%;
         background-image: linear-gradient(#FFFFFF, #808080);
         overflow: hidden;
     }
-    table
-    {
+
+    table {
         border-spacing: 10px;
     }
-    #banner
-    {
+
+    #banner {
         width: 800px;
         margin: auto;
         text-align: center;
         font-size: 18pt;
         font-family: Verdana, Geneva, Tahoma, sans-serif;
-        
+
     }
-    #card
-    {
+
+    #card {
         width: 800px;
         height: 800px;
         margin: auto;
@@ -39,37 +38,37 @@
         background-image: linear-gradient(#000080, #000000);
 
     }
-    #card table tr td
-    {
+
+    #card table tr td {
         border: solid 1px white;
         border-radius: 5px;
         background-color: rgba(255, 255, 255, 0.85);
     }
-    #clock
-    {
+
+    #clock {
         width: 40px;
         height: 40px;
         font-size: 22pt;
         text-align: center;
     }
-    .clockInactive
-    {
+
+    .clockInactive {
         color: #800000;
     }
-    .clockActive
-    {
+
+    .clockActive {
         color: #ffff00;
     }
-    #loader
-    {
+
+    #loader {
         width: auto;
         height: 40px;
         font-size: 18pt;
         font-family: 'Lucida Console', monospace;
         padding-left: 10px;
     }
-    #registers
-    {
+
+    #registers {
         /* width: 380px; */
         height: 40px;
         font-size: 10pt;
@@ -77,8 +76,8 @@
         padding-left: 10px;
         text-align: center;
     }
-    #flags
-    {
+
+    #flags {
         /* width: 350px; */
         height: 40px;
         font-size: 10pt;
@@ -86,57 +85,57 @@
         padding-left: 10px;
         text-align: center;
     }
-    #assembly
-    {
+
+    #assembly {
         height: 65px;
         font-size: 18pt;
         font-family: 'Lucida Console', monospace;
         padding: 10px;
     }
-    #prg
-    {
-        width: 100%; 
+
+    #prg {
+        width: 100%;
         height: 520px;
         font-size: 12pt;
         font-family: 'Lucida Console', monospace;
         border-style: none;
         overflow-y: scroll;
     }
-    #memory
-    {
+
+    #memory {
         height: 65px;
         font-size: 18pt;
         font-family: 'Lucida Console', monospace;
         padding: 10px;
     }
-    #mem
-    {
-        width: 100%; 
+
+    #mem {
+        width: 100%;
         height: 520px;
         font-size: 12pt;
         font-family: 'Lucida Console', monospace;
         border-style: none;
         overflow-y: scroll;
     }
-    #lever
-    {
+
+    #lever {
         width: 380px;
         height: 50px;
     }
-    #speed
-    {
-        width: 350px;         
+
+    #speed {
+        width: 350px;
     }
-    .footer
-    {
-        width: 55%; 
-        margin: auto; 
-        font-family: monospace; 
+
+    .footer {
+        width: 55%;
+        margin: auto;
+        font-family: monospace;
         text-align: center;
         color: #F0F0F0;
     }
-    .footer a
-    {
+
+    .footer a {
         font-family: "Segoe UI", Helvetica, Arial, sans-serif;
         font-weight: bold;
         color: #FFFFFE;
@@ -148,55 +147,88 @@
     /* proto.io/freebies/onoff */
     .onoffswitch {
         margin: auto auto;
-        position: relative; width: 150px;
-        -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+        position: relative;
+        width: 150px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
+
     .onoffswitch-checkbox {
         display: none;
     }
+
     .onoffswitch-label {
-        display: block; overflow: hidden; cursor: pointer;
-        border: 2px solid #999999; border-radius: 50px;
+        display: block;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid #999999;
+        border-radius: 50px;
     }
+
     .onoffswitch-inner {
-        display: block; width: 200%; margin-left: -100%;
+        display: block;
+        width: 200%;
+        margin-left: -100%;
         transition: margin 0.3s ease-in 0s;
     }
-    .onoffswitch-inner:before, .onoffswitch-inner:after {
-        display: block; float: left; width: 50%; height: 24px; padding: 0; line-height: 24px;
-        font-size: 18px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+
+    .onoffswitch-inner:before,
+    .onoffswitch-inner:after {
+        display: block;
+        float: left;
+        width: 50%;
+        height: 24px;
+        padding: 0;
+        line-height: 24px;
+        font-size: 18px;
+        color: white;
+        font-family: Trebuchet, Arial, sans-serif;
+        font-weight: bold;
         box-sizing: border-box;
     }
+
     .onoffswitch-inner:before {
         content: "CPU is ON";
         padding-left: 12px;
-        background-color: #3EC234; color: #FFFFFF;
+        background-color: #3EC234;
+        color: #FFFFFF;
     }
+
     .onoffswitch-inner:after {
         content: "CPU is OFF";
         padding-right: 12px;
-        background-color: #E3DFDF; color: #800000;
+        background-color: #E3DFDF;
+        color: #800000;
         text-align: right;
     }
+
     .onoffswitch-switch {
-        display: block; width: 30px; margin: -3px;
+        display: block;
+        width: 30px;
+        margin: -3px;
         background: #F0F0F0;
-        position: absolute; top: 0; bottom: 0;
+        position: absolute;
+        top: 0;
+        bottom: 0;
         right: 122px;
-        border: 2px solid #999999; border-radius: 50px;
-        transition: all 0.3s ease-in 0s; 
+        border: 2px solid #999999;
+        border-radius: 50px;
+        transition: all 0.3s ease-in 0s;
     }
-    .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+
+    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-inner {
         margin-left: 0;
     }
-    .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-        right: 0px; 
+
+    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch {
+        right: 0px;
     }
 
 
 
 
-    
+
 
 
     /* Derived from https://www.w3schools.com/howto/howto_js_rangeslider.asp */
@@ -205,45 +237,49 @@
         -webkit-appearance: none;
         width: 360px;
         height: 15px;
-        border-radius: 5px;  
+        border-radius: 5px;
         background: #9999ff;
         outline: none;
         opacity: 0.8;
         -webkit-transition: .2s;
         transition: opacity .2s;
         margin: auto;
-      }
-      
-      .slider::-webkit-slider-thumb {
+    }
+
+    .slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%; 
-        background: #4CAF50;
-        cursor: pointer;
-      }
-      
-      .slider::-moz-range-thumb {
         width: 25px;
         height: 25px;
         border-radius: 50%;
         background: #4CAF50;
         cursor: pointer;
-      }
+    }
 
-      .slider:hover {
+    .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+    }
+
+    .slider:hover {
         opacity: 1;
-      }
-      .slidecontainer
-      {
-          margin: auto auto;
-          text-align: center;
-      }
-      .sliderLabel {
-          display: inline-block;
-          position: relative;
-          text-align: center;
-          width: 100%;
-          font-size: 12px; color: #000040; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
-      }
+    }
+
+    .slidecontainer {
+        margin: auto auto;
+        text-align: center;
+    }
+
+    .sliderLabel {
+        display: inline-block;
+        position: relative;
+        text-align: center;
+        width: 100%;
+        font-size: 12px;
+        color: #000040;
+        font-family: Trebuchet, Arial, sans-serif;
+        font-weight: bold;
+    }
