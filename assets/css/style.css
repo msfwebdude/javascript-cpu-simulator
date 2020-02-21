@@ -11,7 +11,7 @@
         ╚══════════════════════════════════════════════════════════════════════════════════════╝        
     */
     body {
-        background-image: linear-gradient(#FFFFFF, #808080);
+        background-image: linear-gradient(#FFFFFF, #606060);
         height: 100%;
         overflow: hidden;
     }
@@ -29,10 +29,10 @@
     }
 
     #card {
-        background-image: linear-gradient(#000080, #000000);
+        background-image: linear-gradient(#000080, #000040);
         border-radius: 15px;
         border: solid 3px white;
-        height: 800px;
+        height: 766px;
         margin: auto;
         width: 800px;
     }
@@ -44,8 +44,8 @@
     }
 
     #clock {
-        font-size: 22pt;
-        height: 40px;
+        font-size: 20pt;
+        height: 38px;
         text-align: center;
         width: 40px;
     }
@@ -60,8 +60,8 @@
 
     #loader {
         font-family: 'Lucida Console', monospace;
-        font-size: 18pt;
-        height: 40px;
+        font-size: 16pt;
+        height: 38px;
         padding-left: 10px;
         width: auto;
     }
@@ -83,33 +83,35 @@
     }
 
     #assembly {
-        font-size: 18pt;
+        font-size: 12pt;
         font-family: 'Lucida Console', monospace;
         height: 65px;
         padding: 10px;
+        text-align: center;
     }
 
     #prg {
         border-style: none;
-        font-size: 12pt;
+        font-size: 11pt;
         font-family: 'Lucida Console', monospace;
-        height: 520px;
+        height: 500px;
         overflow-y: scroll;
         width: 100%;
     }
 
     #memory {
         font-family: 'Lucida Console', monospace;
-        font-size: 18pt;
+        font-size: 12pt;
         height: 65px;
         padding: 10px;
+        text-align: center;
     }
 
     #mem {
         border-style: none;
         font-family: 'Lucida Console', monospace;
-        font-size: 12pt;
-        height: 520px;
+        font-size: 11pt;
+        height: 500px;
         overflow-y: scroll;
         width: 100%;
     }
@@ -126,6 +128,7 @@
     .footer {
         color: #F0F0F0;
         font-family: 'Lucida Console', monospace;
+        font-size: 9pt;
         margin: auto;
         text-align: center;
         width: 65%;
@@ -136,8 +139,12 @@
         font-family: "Segoe UI", Helvetica, Arial, sans-serif;
         font-weight: bold;
         text-decoration: none;
+        font-size: 12pt;
     }
 
+    .footer a img {
+        vertical-align: middle;
+    }
 
 
     /* proto.io/freebies/onoff */

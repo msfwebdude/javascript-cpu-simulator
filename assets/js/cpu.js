@@ -784,10 +784,10 @@ self.writeMemory = () => {
             if (memIndex == 0 || ((memIndex / 8) == Math.floor(memIndex / 8))) {
                 if (memIndex != 0) { memText += "\n"; }
                 memText += ("0000" + memIndex.toString(16).toUpperCase()).substr(-4, 4);
-                memText += "  ";
+                memText += ":  ";
             }
             memText += ("00" + memValue.toString(16).toUpperCase()).substr(-2, 2);
-            memText += " ";
+            memText += "  ";
         }
     );
     self.mem.value = memText;
@@ -1589,9 +1589,13 @@ self.cpuInterval.value = defaultIntervalValue;
 self.updateSpeed(defaultIntervalValue);
 
 // set dynamic content
-const now = new Date();
-self.currentYear.innerHTML = now.getFullYear();
-self.DateUpdated.innerHTML = (new Date(self.DateUpdated.innerHTML)).toLocaleString().replace(',', '');
+const dateCurrent = new Date();
+const dateUpdated = new Date(self.DateUpdated.innerHTML);
+self.currentYear.innerHTML = dateCurrent.getFullYear();
+self.DateUpdated.innerHTML = dateUpdated.toLocaleString().replace(',', '');
+if(!(dateUpdated instanceof Date && isFinite(dateUpdated))) {
+    self.DateUpdated.innerHTML = "unknown";
+}
 
 // PRG On Change - sets the onchange event function handler
 self.prg.onchange = () => {
