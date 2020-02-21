@@ -53,6 +53,8 @@ The flags and registers mimic the 6502 processor.
 
 ## Todo
 
+Working on wrapping my brain around how interupts work to properly simulate them. Compare commands are next.
+
 The 'To-Do' kanban board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
 
 
