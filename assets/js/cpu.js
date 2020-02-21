@@ -1548,8 +1548,6 @@ self.cpuData = {
 self.prg.value = `
 ; sample program for 6502
 
-.chip 65C02
-
 .org $FFFE
 .word $0003
     
