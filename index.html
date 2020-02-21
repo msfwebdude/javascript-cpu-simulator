@@ -1,11 +1,11 @@
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>javascript-cpu-simulator</title>
-        <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
-        <link rel="icon" type="image/x-icon" href="./assets/img/favicon.ico" />
-    </head>
-    <!--
+<head>
+    <meta charset="UTF-8">
+    <title>javascript-cpu-simulator</title>
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
+    <link rel="icon" type="image/x-icon" href="./assets/img/favicon.ico" />
+</head>
+<!--
     ╔══════════════════════════════════════════════════════════════════════════════════════╗
     ║                               javascript-cpu-simulator                               ║
     ╠══════════════════════════════════════════════════════════════════════════════════════╣
@@ -17,52 +17,58 @@
     ║                  MIT License. See ../../LICENSE and ../../README.md                  ║
     ║                                                                                      ║
     ╚══════════════════════════════════════════════════════════════════════════════════════╝     
-    -->    
-    <body>
-        <p><br /></p>
-        <div id="card">
-            <table id='upperTable'>
-                <tr>
-                    <td colspan='8' id='banner'>CPU Simulator</td>
-                </tr>
-                <tr>
-                    <td colspan='4' id='lever'>
-                        <div class="onoffswitch">
-                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="cpuEnabled" onchange="self.updateEnabled(this.checked)">
-                            <label class="onoffswitch-label" for="cpuEnabled">
-                                <span class="onoffswitch-inner"></span>
-                                <span class="onoffswitch-switch"></span>
-                            </label>
-                        </div>                    
-                    </td>
-                    <td colspan='4' id='speed'>
-                        <div class="slidecontainer">
-                            <label for="cpuInterval" class="sliderLabel" id='cpuIntervalLabel'>CPU Interval</label>
-                            <input type="range" min="200" max="5000" value="1000" class="slider" id="cpuInterval" onchange="self.updateSpeed(this.value);" onmousemove="self.cpuIntervalLabel.innerHTML = `CPU Interval: ${this.value}ms`">
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td id='clock' style='color: #800000;'>&#x2600;</td>
-                    <td id='loader' colspan='7'>Current Operation</td>
-                </tr>
-                <tr>
-                    <td colspan='4' id='registers'>Registers</td>
-                    <td colspan='4' id='flags'>Flags</td>
-                </tr>
-                <tr>
-                    <td id='assembly' colspan='4'>Assembly Program<br />
-                        <textarea id='prg' spellcheck="false"></textarea>
-                    </td>
-                    <td id='memory' colspan='4'>Memory<br />
-                        <textarea id='mem' spellcheck="false"></textarea>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <br>
-        <div class="footer">This project is on <a href="https://github.com/msfwebdude/javascript-cpu-simulator">GitHub</a>&nbsp;|&nbsp;Updated&nbsp;on&nbsp;<span id="DateUpdated">{DateUpdated}</span>&nbsp;|&nbsp;&copy;&nbsp;<span id="currentYear"></span>&nbsp;Mike Firoved</div>
-        <p><br></p>
-        <script type="text/javascript" src="assets/js/cpu.js"></script>
-    </body>
+-->
+<body>
+    <p><br /></p>
+    <div id="card">
+        <table id='upperTable'>
+            <tr>
+                <td colspan='8' id='banner'>CPU Simulator</td>
+            </tr>
+            <tr>
+                <td colspan='4' id='lever'>
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="cpuEnabled"
+                            onchange="self.updateEnabled(this.checked)">
+                        <label class="onoffswitch-label" for="cpuEnabled">
+                            <span class="onoffswitch-inner"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>
+                </td>
+                <td colspan='4' id='speed'>
+                    <div class="slidecontainer">
+                        <label for="cpuInterval" class="sliderLabel" id='cpuIntervalLabel'>CPU Interval</label>
+                        <input type="range" min="200" max="5000" value="1000" class="slider" id="cpuInterval"
+                            onchange="self.updateSpeed(this.value);"
+                            onmousemove="self.cpuIntervalLabel.innerHTML = `CPU Interval: ${this.value}ms`">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td id='clock' style='color: #800000;'>&#x2600;</td>
+                <td id='loader' colspan='7'>Current Operation</td>
+            </tr>
+            <tr>
+                <td colspan='4' id='registers'>Registers</td>
+                <td colspan='4' id='flags'>Flags</td>
+            </tr>
+            <tr>
+                <td id='assembly' colspan='4'>Assembly Program<br />
+                    <textarea id='prg' spellcheck="false"></textarea>
+                </td>
+                <td id='memory' colspan='4'>Memory<br />
+                    <textarea id='mem' spellcheck="false"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br>
+    <div class="footer">
+        This project is on <a href="https://github.com/msfwebdude/javascript-cpu-simulator">GitHub</a>&nbsp;|&nbsp;Updated&nbsp;on&nbsp;<span id="DateUpdated">{DateUpdated}</span>&nbsp;|&nbsp;&copy;&nbsp;<span id="currentYear"></span>&nbsp;Mike&nbsp;Firoved
+    </div>
+    <p><br></p>
+    <script type="text/javascript" src="assets/js/cpu.js"></script>
+</body>
+
 </html>
