@@ -53,8 +53,6 @@ The flags and registers mimic the 6502 processor.
 
 ## Todo
 
-Currently working on a bug with Register A becoming stuck at 0xAA
-
 The 'To-Do' kanban board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
 
 

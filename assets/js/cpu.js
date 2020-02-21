@@ -1565,7 +1565,7 @@ start:
     ADC #$1E
     LDA #$04
     ASL A
-    STA $0021
+    STA $0041
     LDA #$40
     STA $0050
     LDA $0050
