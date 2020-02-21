@@ -1592,14 +1592,16 @@ const defaultIntervalValue = 1000;
 self.cpuInterval.value = defaultIntervalValue;
 self.updateSpeed(defaultIntervalValue);
 
+// set dynamic content
 const now = new Date();
 self.currentYear.innerHTML = now.getFullYear();
+self.DateUpdated.innerHTML = (new Date(self.DateUpdated.innerHTML)).toLocaleString().replace(',', '');
 
 // PRG On Change - sets the onchange event function handler
 self.prg.onchange = () => {
     self.cpuData.cpuEnabled     = false;
     self.cpuData.programCounter = 0xFFFE;
-    
+
     self.assembleCode();
 };
 
