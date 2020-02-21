@@ -53,6 +53,6 @@ The flags and registers mimic the 6502 processor.
 
 ## Todo
 
- The Todo  Kanban Board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
+ The 'To-Do' kanban board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
 
 
