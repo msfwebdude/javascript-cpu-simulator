@@ -1597,6 +1597,9 @@ self.currentYear.innerHTML = now.getFullYear();
 
 // PRG On Change - sets the onchange event function handler
 self.prg.onchange = () => {
+    self.cpuData.cpuEnabled     = false;
+    self.cpuData.programCounter = 0xFFFE;
+    
     self.assembleCode();
 };
 
