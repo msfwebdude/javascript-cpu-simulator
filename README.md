@@ -2,7 +2,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/msfwebdude/javascript-cpu-simulator?style=plastic)
 
 # Javascript CPU simulator
-This is a JavaScript web page that simulates a 6502 CPU.
+This is a JavaScript, HTML, CSS web page that simulates a 6502 CPU.
 
 Back in January of 2015, because I was a huge fan of the 6502, I created a Visual Basic 6 implementation of a [6502 simulator](https://www.planet-source-code.com/vb/scripts/ShowCode.asp?txtCodeId=22670&lngWId=1). Since I really love JS, I thought about creating a HTML / CSS / JS project which simulates a 6502 CPU and see how far I could go with it.
 
@@ -33,18 +33,20 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 
 
 ## Registers and Flags
-The flags and registers mimic the 6502 processor.
+The flags and registers are designed around the 6502 processor.
 
 ### Registers
  * A Register
  * X Register
  * Y Register
- * Stack Pointer (S Register)
+ * Stack Pointer (SP Register)
 
 
- ### Flags
+### Flags
 | Negative | Overflow | Break H | Break L | Decimal | Interrupt | Zero | Carry |
 |---|---|---|---|---|---|---|---|
+
+The break flag is two bits.
 
 ## Assembler control commands
 * .ORG - sets the origination point in memory of the next command or opcode
