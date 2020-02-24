@@ -57,6 +57,23 @@ The break flag is two bits.
 
 Working on wrapping my brain around how interupts work to properly simulate them. Compare commands are next.
 
-The 'To-Do' kanban board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
+The "To-Do" kanban board can be found [here](https://github.com/msfwebdude/javascript-cpu-simulator/projects/1).
+
+
+## Automatic Deployments
+
+I found it tedious, to open AWS, login with MFA, open S3, open the bucket, open the folder and upload files with settings for permissions, for every time I made a code change and commit.
+
+So knowing I had the tools to simplify this process, I played around with AWS [CodePipeline](https://aws.amazon.com/codepipeline/) and created a pipeline to listen for commit webhook events from GitHub and automatically retrived the content, deployed it to my S3 bucket where I had my website pointed, and launched a lambda function to replace the `{DateUpdated}` token in `index.html` to the date that the page was updated and deployed. The page script in `cpu.js` takes this UTC ISO Date and converts it into the local user's local time:
+
+```javascript
+const dateUpdated = new Date(self.DateUpdated.innerHTML);
+
+self.DateUpdated.innerHTML = dateUpdated.toLocaleString().replace(',', '');
+```
+
+The diagram below shows the web requests coming in from the web and the commit webhooks coming in from GitHub
+
+![Deployment](assets/img/deployment.png)
 
 
