@@ -828,14 +828,14 @@ self.loaderRun = () => {
 
     var fmtAddress = '0x' + ('0000' + oneAndTwo.toString(16).toUpperCase()).substr(-4, 4);
     var fmtImValue = '0x' + ('0000' + opPlusOne.toString(16).toUpperCase()).substr(-2, 2);
-    var fmtCounter = '$' + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
+    var fmtCounter = '$'  + ('0000' + self.cpuData.programCounter.toString(16).toUpperCase()).substr(-4, 4);
     var currentPfx = `Current Operation: ${fmtCounter}&nbsp;`;
 
     switch (operation) {
         case 0x69:
             // ADC immediate 
             self.loader.innerHTML = `${currentPfx} ADC ${fmtImValue}`;
-            var sum = self.cpuData.registers.A + opPlusOne;
+            var sum = self.cpuData.registers.A + opPlusOne + (self.cpuData.flags.carry ? 1 : 0);
             self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
@@ -851,7 +851,7 @@ self.loaderRun = () => {
         case 0x6D:
             // ADC absolute
             self.loader.innerHTML = `${currentPfx} ADC ${oneAndTwo}`;
-            var sum = self.cpuData.registers.A + memoryVal;
+            var sum = self.cpuData.registers.A + memoryVal + (self.cpuData.flags.carry ? 1 : 0);
             self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
@@ -867,7 +867,7 @@ self.loaderRun = () => {
         case 0xE9:
             // SBC immediate 
             self.loader.innerHTML = `${currentPfx} SBC ${fmtImValue}`;
-            var sum = self.cpuData.registers.A - opPlusOne;
+            var sum = self.cpuData.registers.A - opPlusOne - (self.cpuData.flags.carry ? 0 : 1);
             self.cpuData.flags.carry = false;
             if(sum < 0){
                 sum += 256;
@@ -884,7 +884,7 @@ self.loaderRun = () => {
         case 0xED:
             // SBC absolute
             self.loader.innerHTML = `${currentPfx} SBC ${oneAndTwo}`;
-            var sum = self.cpuData.registers.A - memoryVal;
+            var sum = self.cpuData.registers.A - memoryVal - (self.cpuData.flags.carry ? 0 : 1);
             self.cpuData.flags.carry = false;
             if(sum < 0){
                 sum += 256;
