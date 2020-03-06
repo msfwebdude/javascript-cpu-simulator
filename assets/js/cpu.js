@@ -835,7 +835,7 @@ self.loaderRun = () => {
         case 0x69:
             // ADC immediate 
             self.loader.innerHTML = `${currentPfx} ADC ${fmtImValue}`;
-            var sum = self.cpuData.registers.A + opPlusOne + (self.cpuData.flags.carry ? 1 : 0);
+            var sum = self.cpuData.registers.A + self.convertOnDecimalMode(opPlusOne) + (self.cpuData.flags.carry ? 1 : 0);
             self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
@@ -851,7 +851,7 @@ self.loaderRun = () => {
         case 0x6D:
             // ADC absolute
             self.loader.innerHTML = `${currentPfx} ADC ${oneAndTwo}`;
-            var sum = self.cpuData.registers.A + memoryVal + (self.cpuData.flags.carry ? 1 : 0);
+            var sum = self.cpuData.registers.A + self.convertOnDecimalMode(memoryVal) + (self.cpuData.flags.carry ? 1 : 0);
             self.cpuData.flags.carry = false;
             if(sum > 0xFF){
                 sum &= 0xFF;
@@ -867,7 +867,7 @@ self.loaderRun = () => {
         case 0xE9:
             // SBC immediate 
             self.loader.innerHTML = `${currentPfx} SBC ${fmtImValue}`;
-            var sum = self.cpuData.registers.A - opPlusOne - (self.cpuData.flags.carry ? 0 : 1);
+            var sum = self.cpuData.registers.A - self.convertOnDecimalMode(opPlusOne) - (self.cpuData.flags.carry ? 0 : 1);
             self.cpuData.flags.carry = false;
             if(sum < 0){
                 sum += 256;
@@ -884,7 +884,7 @@ self.loaderRun = () => {
         case 0xED:
             // SBC absolute
             self.loader.innerHTML = `${currentPfx} SBC ${oneAndTwo}`;
-            var sum = self.cpuData.registers.A - memoryVal - (self.cpuData.flags.carry ? 0 : 1);
+            var sum = self.cpuData.registers.A - self.convertOnDecimalMode(memoryVal) - (self.cpuData.flags.carry ? 0 : 1);
             self.cpuData.flags.carry = false;
             if(sum < 0){
                 sum += 256;
@@ -1480,6 +1480,32 @@ self.convertFlagsToValue = (flagsObject) => {
     neoValue += ((flagsObject.zero      ? 0b00000010 : 0));
     neoValue += ((flagsObject.carry     ? 0b00000001 : 0));
     return neoValue;
+};
+
+self.convertOnDecimalMode = (number) => {
+    if(self.cpuData.flags.decimal){
+        var strNumber   = number.toString(16).toUpperCase();
+        var firstDigit  = strNumber.substr(0,1);
+        var secondDigit = strNumber.substr(1,1);
+        var returnValue = 0;
+
+        if(/[0-9]/.test(firstDigit)){
+            returnValue += (parseInt(firstDigit) * 10);
+        }
+        else {
+            returnValue += (parseInt('0x' + firstDigit) * 10);
+        }
+        if(/[0-9]/.test(secondDigit)){
+            returnValue += (parseInt(secondDigit) * 1);
+        }
+        else {
+            returnValue += (parseInt('0x' + secondDigit) * 1);
+        }
+        return returnValue;
+    }
+    else {
+        return number;
+    }
 };
 
 // CPU Enabled Action Function - handles clicks on the enabled switch
