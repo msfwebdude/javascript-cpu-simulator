@@ -664,6 +664,72 @@ self.assembleCode = () => {
                                 }
                                 break;
 
+                            case 'CMP':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xC9);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xCD);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;
+
+                            case 'CPX':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xE0);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xEC);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;   
+
+                            case 'CPY':
+                                switch (operandType) {
+                                    case operandTypes.IMMEDIATE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xC0);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 2;
+                                        break;
+
+                                    case operandTypes.ABSOLUTE:
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0xCC);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[1]);
+                                        nextMemoryIndex++;
+                                        self.cpuData.assembler.privatePointer += 3;
+                                        break;
+                                }
+                                break;                                                          
+
                             case "BIT":
                                 switch (operandType) {
                                     case operandTypes.ABSOLUTE:
@@ -1443,7 +1509,97 @@ self.loaderRun = () => {
             self.cpuData.flags.overflow = (memoryVal & 0x40) > 0;
             self.cpuData.programCounter += 3;
             break;
-            
+
+        case 0xC9:
+            // CMP immediate 
+            self.loader.innerHTML = `${currentPfx} CMP ${fmtImValue}`;
+            var sum = self.cpuData.registers.A - opPlusOne;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.programCounter += 2;
+            break;
+
+        case 0xCD:
+            // CMP absolute
+            self.loader.innerHTML = `${currentPfx} CMP ${oneAndTwo}`;
+            var sum = self.cpuData.registers.A - memoryVal;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.programCounter += 3;
+            break;    
+
+        case 0xE0:
+            // CPX immediate 
+            self.loader.innerHTML = `${currentPfx} CPX ${fmtImValue}`;
+            var sum = self.cpuData.registers.X - opPlusOne;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.programCounter += 2;
+            break;
+
+        case 0xEC:
+            // CPX absolute
+            self.loader.innerHTML = `${currentPfx} CPX ${oneAndTwo}`;
+            var sum = self.cpuData.registers.X - memoryVal;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.programCounter += 3;
+            break;    
+
+        case 0xE9:
+            // CPY immediate 
+            self.loader.innerHTML = `${currentPfx} CPY ${fmtImValue}`;
+            var sum = self.cpuData.registers.Y - opPlusOne;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.programCounter += 2;
+            break;
+
+        case 0xED:
+            // CPY absolute
+            self.loader.innerHTML = `${currentPfx} CPY ${oneAndTwo}`;
+            var sum = self.cpuData.registers.Y - memoryVal;
+            self.cpuData.flags.carry = false;
+            if(sum < 0){
+                sum += 256;
+                sum &= 0xFF;
+                self.cpuData.flags.carry = true;
+            }
+            self.cpuData.flags.zero     = (sum == 0);
+            self.cpuData.flags.negative = (sum > 0x7F);
+            self.cpuData.programCounter += 3;
+            break;    			            
+
         default:
             break;
     }
@@ -1594,6 +1750,8 @@ start:
     STA $0050
     LDA $0050
     SBC #$20
+    LDA #$FF
+    CMP #$88
 
 addLoop:
     LDA $0040
