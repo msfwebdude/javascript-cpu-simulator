@@ -303,12 +303,23 @@ self.assembleCode = () => {
                                 self.cpuData.assembler.privatePointer++;
                                 break;
 
+                            case 'JSR':
                             case 'JMP':
+                                var opcode = 0;
+                                switch (operation) {
+                                    case 'JSR':
+                                        opcode = parseInt(0x20);
+                                        break;
+
+                                    case 'JMP':
+                                        opcode = parseInt(0x4C);
+                                        break;
+                                }
                                 switch (operandType) {
                                     case operandTypes.NULL:
                                         // look for label
                                         if (operand in self.cpuData.assembler.labels.labelLocations) {
-                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
+                                            self.cpuData.memoryArray[nextMemoryIndex] = opcode;
                                             nextMemoryIndex++;
                                             self.cpuData.memoryArray[nextMemoryIndex] = parseInt('0x' + self.cpuData.assembler.labels.labelLocations[operand][0]);
                                             nextMemoryIndex++;
@@ -321,7 +332,7 @@ self.assembleCode = () => {
                                             var memLocationZero = 0;
                                             var memLocationIchi = 0;
 
-                                            self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
+                                            self.cpuData.memoryArray[nextMemoryIndex] = opcode;
                                             nextMemoryIndex++;
 
                                             self.cpuData.memoryArray[nextMemoryIndex] = 0;
@@ -349,7 +360,7 @@ self.assembleCode = () => {
                                         break;
 
                                     case operandTypes.ABSOLUTE:
-                                        self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x4C);
+                                        self.cpuData.memoryArray[nextMemoryIndex] = opcode;
                                         nextMemoryIndex++;
                                         self.cpuData.memoryArray[nextMemoryIndex] = parseInt(operandValue[0]);
                                         nextMemoryIndex++;
@@ -501,6 +512,12 @@ self.assembleCode = () => {
 
                             case 'TXS':
                                 self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x9A);
+                                nextMemoryIndex++;
+                                self.cpuData.assembler.privatePointer++;
+                                break;
+
+                            case 'RTS':
+                                self.cpuData.memoryArray[nextMemoryIndex] = parseInt(0x60);
                                 nextMemoryIndex++;
                                 self.cpuData.assembler.privatePointer++;
                                 break;
@@ -822,7 +839,8 @@ self.assembleCode = () => {
                                         self.cpuData.assembler.privatePointer += 3;
                                         break;
                                 }
-                                
+
+
                             default:
                                 break;
                         }
@@ -1059,6 +1077,22 @@ self.loaderRun = () => {
             // JMP 
             self.loader.innerHTML = `${currentPfx} JMP to ${fmtAddress}`;
             self.cpuData.programCounter = oneAndTwo;
+            break;
+
+        case 0x20:
+            // JSR
+            self.loader.innerHTML = `${currentPfx} JSR to ${fmtAddress}`;
+            self.cpuData.memoryArray[0x100 + self.cpuData.registers.S] = self.cpuData.programCounter;
+            self.cpuData.registers.S--;
+            self.cpuData.programCounter = oneAndTwo;
+            break;
+
+        case 0x60:
+            // RTS
+            var addr = self.cpuData.memoryArray[0x101 + self.cpuData.registers.S] + 3;
+            self.loader.innerHTML = `${currentPfx} RTS to ${'0x' + ('0000' + addr.toString(16).toUpperCase()).substr(-4, 4)}`;
+            self.cpuData.programCounter = addr
+            self.cpuData.registers.S++;
             break;
 
         case 0xA9:
@@ -1742,6 +1776,7 @@ start:
     CLC
     LDA #$00
     STA $0040
+    JSR clearAll
     ADC #$1E
     LDA #$04
     ASL A
@@ -1761,6 +1796,15 @@ addLoop:
     STA $0040
     BIT $0040
     JMP addLoop
+
+clearAll:
+    CLC
+    CLD
+    CLV
+    LDA #$00
+    LDX #$00
+    LDY #$00
+    RTS
 
 .org $0040
 .byte $00
