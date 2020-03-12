@@ -18,18 +18,18 @@ The opcodes used are based on the [6502 opcodes](http://www.6502.org/tutorials/6
 
 ### Currently the following opcodes work:
 
-| Math    | Load and Store | Transfer | Clear and Set | Logic | Stack   | Branch  | Etc     | 
-|:-------:|:--------------:|:--------:|:-------------:|:-----:|:-------:|:-------:|:-------:|
-| ADC     | LDA            | TAX      | CLC           | AND   | PHA     | BCC     | NOP     |
-| ASL     | LDX            | TAY      | CLD           | BIT   | PLA     | BCS     | ~~BRK~~ |
-| DEX     | LDY            | TSX      | CLI           | CMP   | PHP     | BEQ     |         |
-| DEY     | STA            | TXA      | CLV           | CPX   | PLP     | BMI     |         |
-| INX     | STX            | TXS      | SEC           | CPY   | ~~RTI~~ | BNE     |         |
-| INY     | STY            | TYA      | SED           | EOR   | ~~RTS~~ | BPL     |         |
-| LSR     |                |          | SEI           | ORA   |         | BVC     |         |
-| ROL     |                |          |               |       |         | BCS     |         |
-| ROR     |                |          |               |       |         | JMP     |         |
-| SBC     |                |          |               |       |         | ~~JSR~~ |         |
+| Math | Load and Store | Transfer | Clear and Set | Logic | Stack   | Branch | Etc     | 
+|:----:|:--------------:|:--------:|:-------------:|:-----:|:-------:|:------:|:-------:|
+| ADC  | LDA            | TAX      | CLC           | AND   | PHA     | BCC    | NOP     |
+| ASL  | LDX            | TAY      | CLD           | BIT   | PLA     | BCS    | ~~BRK~~ |
+| DEX  | LDY            | TSX      | CLI           | CMP   | PHP     | BEQ    |         |
+| DEY  | STA            | TXA      | CLV           | CPX   | PLP     | BMI    |         |
+| INX  | STX            | TXS      | SEC           | CPY   | ~~RTI~~ | BNE    |         |
+| INY  | STY            | TYA      | SED           | EOR   | RTS     | BPL    |         |
+| LSR  |                |          | SEI           | ORA   |         | BVC    |         |
+| ROL  |                |          |               |       |         | BCS    |         |
+| ROR  |                |          |               |       |         | JMP    |         |
+| SBC  |                |          |               |       |         | JSR    |         |
 
 
 ## Registers and Flags
