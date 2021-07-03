@@ -29,7 +29,7 @@
                 <td colspan='4' id='lever'>
                     <div class="onoffswitch">
                         <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="cpuEnabled"
-                            onchange="self.updateEnabled(this.checked)">
+                            onchange="cpu.updateEnabled(this.checked)">
                         <label class="onoffswitch-label" for="cpuEnabled">
                             <span class="onoffswitch-inner"></span>
                             <span class="onoffswitch-switch"></span>
@@ -40,7 +40,7 @@
                     <div class="slidecontainer">
                         <label for="cpuInterval" class="sliderLabel" id='cpuIntervalLabel'>CPU Interval</label>
                         <input type="range" min="200" max="5000" value="1000" class="slider" id="cpuInterval"
-                            onchange="self.updateSpeed(this.value);"
+                            onchange="cpu.updateSpeed(this.value);"
                             onmousemove="self.cpuIntervalLabel.innerHTML = `CPU Interval: ${this.value}ms`">
                     </div>
                 </td>

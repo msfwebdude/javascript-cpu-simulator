@@ -60,7 +60,7 @@
 
     #loader {
         font-family: 'Lucida Console', monospace;
-        font-size: 16pt;
+        font-size: 16px;
         height: 38px;
         padding-left: 10px;
         width: auto;
@@ -152,6 +152,7 @@
         margin: auto auto;
         position: relative;
         width: 150px;
+        user-select: none;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
