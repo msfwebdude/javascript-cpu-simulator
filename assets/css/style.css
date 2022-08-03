@@ -5,7 +5,7 @@
         ║                                                                                      ║
         ║                     assets/css/style - called by ../../index.html                    ║
         ║                                                                                      ║
-        ║                        Copyright (c) 2019 - 2020 Mike Firoved                        ║
+        ║                        Copyright (c) 2019 - 2022 Mike Firoved                        ║
         ║                  MIT License. See ../../LICENSE and ../../README.md                  ║
         ║                                                                                      ║
         ╚══════════════════════════════════════════════════════════════════════════════════════╝        
@@ -13,7 +13,8 @@
     body {
         background-image: linear-gradient(#FFFFFF, #606060);
         height: 100%;
-        overflow: hidden;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     table {
@@ -60,7 +61,7 @@
 
     #loader {
         font-family: 'Lucida Console', monospace;
-        font-size: 16px;
+        font-size: 11pt;
         height: 38px;
         padding-left: 10px;
         width: auto;

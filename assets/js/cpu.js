@@ -4,7 +4,7 @@
 // ║                                                                                      ║
 // ║         assets/js/cpu.js - the js brains behind it all, called by index.html         ║
 // ║                                                                                      ║
-// ║                        Copyright (c) 2019 - 2020 Mike Firoved                        ║
+// ║                        Copyright (c) 2019 - 2022 Mike Firoved                        ║
 // ║                  MIT License. See ../../LICENSE and ../../README.md                  ║
 // ║                                                                                      ║
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
